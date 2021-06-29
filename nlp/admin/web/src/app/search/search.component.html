@@ -20,9 +20,9 @@
     <nb-card>
       <nb-card-body>
         <span class="search-criterion">
-          <input nbInput placeholder="Search sentences" status="primary" [(ngModel)]="filter.search"
+          <input nbInput placeholder="Search sentences" i18n-placeholder="@@search/search-sentences-placeholder" status="primary" [(ngModel)]="filter.search"
                  (keyup.enter)="search()" style="width: 30rem;"
-                 nbTooltip="Search support regexp (PCRE format)">
+                 nbTooltip="Search support regexp (PCRE format)" i18n-nbTooltip="@@search/search-support-regexp-tooltip">
         </span>
         <button nbButton outline status="primary" size="small" (click)="search()">GO</button>
         <br>

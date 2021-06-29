@@ -9,6 +9,12 @@
       "projectType": "application",
       "prefix": "app",
       "schematics": {},
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "fr": "src/locale/messages.fr.xlf"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -60,6 +66,12 @@
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true
+            },
+            "en-US": {
+              "localize": ["en-US"]
+            },
+            "fr": {
+              "localize": ["fr"]
             }
           }
         },
@@ -72,6 +84,12 @@
             "production": {
               "browserTarget": "nlp:build:production"
             }
+          },
+          "en-US": {
+            "browserTarget": "angular-i18n-example:build:en-US"
+          },
+          "fr": {
+            "browserTarget": "angular-i18n-example:build:fr"
           }
         },
         "extract-i18n": {
