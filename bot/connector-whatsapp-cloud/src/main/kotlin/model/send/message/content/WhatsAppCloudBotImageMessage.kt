@@ -30,7 +30,7 @@ data class WhatsAppCloudBotImageMessage (
         override val userId: String? = null,
         val uploadToWhatsapp: Boolean = true,
 ) : WhatsAppCloudBotMessage(WhatsAppCloudBotMessageType.image, userId) {
-    override fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
+    override suspend fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
             WhatsAppCloudSendBotImageMessage(
                     image.prepare(apiService),
                     recipientType,

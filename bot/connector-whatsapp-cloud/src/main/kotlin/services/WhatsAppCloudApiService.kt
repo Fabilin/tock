@@ -24,9 +24,7 @@ import ai.tock.bot.connector.whatsapp.cloud.model.common.MetaUploadHandle
 import ai.tock.bot.connector.whatsapp.cloud.model.send.media.FileType
 import ai.tock.bot.connector.whatsapp.cloud.model.send.media.MediaResponse
 import ai.tock.bot.connector.whatsapp.cloud.model.send.message.WhatsAppCloudSendBotMessage
-import ai.tock.bot.connector.whatsapp.cloud.model.send.message.content.HeaderParameter
 import ai.tock.bot.connector.whatsapp.cloud.model.send.message.content.PayloadParameter
-import ai.tock.bot.connector.whatsapp.cloud.model.send.message.content.WhatsappTemplateComponent
 import ai.tock.bot.connector.whatsapp.cloud.model.template.WhatsappTemplate
 import ai.tock.bot.connector.whatsapp.cloud.spi.AssetUploadingException
 import ai.tock.bot.engine.BotRepository
@@ -95,9 +93,7 @@ class WhatsAppCloudApiService(private val apiClient: WhatsAppCloudApiClient) {
     fun shortenPayload(parameters: PayloadParameter): PayloadParameter {
         return parameters.payload?.takeIf { it.length >= 128 }?.let {
             val uuidPayload = UUID.randomUUID().toString()
-            executor.executeBlocking {
-                payloadWhatsApp.save(PayloadWhatsAppCloud(uuidPayload, it, Date.from(Instant.now())))
-            }
+            payloadWhatsApp.save(PayloadWhatsAppCloud(uuidPayload, it, Date.from(Instant.now())))
             parameters.copy(payload = uuidPayload)
         } ?: parameters
     }
@@ -105,9 +101,7 @@ class WhatsAppCloudApiService(private val apiClient: WhatsAppCloudApiClient) {
     fun shortenPayload(payload: String): String {
         return if (payload.length >= 256) {
             val uuidPayload = UUID.randomUUID().toString()
-            executor.executeBlocking {
-                payloadWhatsApp.save(PayloadWhatsAppCloud(uuidPayload, payload, Date.from(Instant.now())))
-            }
+            payloadWhatsApp.save(PayloadWhatsAppCloud(uuidPayload, payload, Date.from(Instant.now())))
             uuidPayload
         } else {
             payload
@@ -250,36 +244,6 @@ class WhatsAppCloudApiService(private val apiClient: WhatsAppCloudApiClient) {
         } finally {
             BotRepository.requestTimer.end(requestTimerData)
         }
-    }
-
-    fun replaceWithRealImageId(
-        components: List<WhatsappTemplateComponent>,
-        phoneNumberId: String
-    ) {
-        components
-            .asSequence()
-            .filterIsInstance<WhatsappTemplateComponent.Carousel>()
-            .flatMap { it.cards }
-            .flatMap { it.components }
-            .filterIsInstance<WhatsappTemplateComponent.Header>()
-            .flatMap { it.parameters }
-            .filterIsInstance<HeaderParameter.Image>()
-            .filter { it.image.id != null }
-            .map {
-                it to executor.executeBlockingTask {
-                    sendMedia(
-                        it.image.id!!,
-                        FileType.PNG.type
-                    )
-                }
-            }
-            //exit from sequence
-            .toList()
-            .forEach {
-                val imageHeader = it.first
-                val newImageId = it.second.get().id
-                imageHeader.image.id = newImageId
-            }
     }
 
     private fun retrieveMedia(fileUrl: String): ByteArray {

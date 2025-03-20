@@ -25,6 +25,9 @@ import ai.tock.bot.connector.whatsapp.cloud.services.WhatsAppCloudApiService
 import ai.tock.bot.engine.action.SendAttachment
 import ai.tock.bot.engine.message.Attachment
 import ai.tock.bot.engine.message.GenericMessage
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 data class WhatsAppCloudBotInteractiveMessage(
     val interactive: WhatsAppCloudBotInteractive,
@@ -48,38 +51,44 @@ data class WhatsAppCloudBotInteractiveMessage(
         )
     }
 
-    override fun prepareMessage(
+    override suspend fun prepareMessage(
         apiService: WhatsAppCloudApiService,
         recipientId: String
-    ): WhatsAppCloudSendBotMessage {
+    ): WhatsAppCloudSendBotMessage = coroutineScope {
         val action = interactive.action
         val updatedButtons = action.buttons.takeIf { !it.isNullOrEmpty() }?.map { btn ->
-            btn.copy(reply = btn.reply.copy(id = apiService.shortenPayload(btn.reply.id)))
+            async { btn.copy(reply = btn.reply.copy(id = apiService.shortenPayload(btn.reply.id))) }
         }
         val updatedSections = action.sections.takeIf { !it.isNullOrEmpty() }?.map { section ->
-            section.copy(rows = section.rows?.map { row ->
-                row.copy(id = apiService.shortenPayload(row.id))
-            })
+            async {
+                section.copy(rows = section.rows?.map { row ->
+                    async {
+                        row.copy(id = apiService.shortenPayload(row.id))
+                    }
+                }?.awaitAll())
+            }
         }
         val updatedHeader = interactive.header?.let { header ->
-            if (header.image != null) {
-                header.copy(
-                    image = WhatsAppCloudBotMediaImage(
-                        id = apiService.getUploadedImageId(
-                            header.image.id
+            async {
+                if (header.image != null) {
+                    header.copy(
+                        image = WhatsAppCloudBotMediaImage(
+                            id = apiService.getUploadedImageId(
+                                header.image.id
+                            )
                         )
                     )
-                )
-            } else {
-                header
+                } else {
+                    header
+                }
             }
         }
         val updatedAction = interactive.action.copy(
-            buttons = updatedButtons,
-            sections = updatedSections,
+            buttons = updatedButtons?.awaitAll(),
+            sections = updatedSections?.awaitAll(),
         )
-        return WhatsAppCloudSendBotInteractiveMessage(
-            interactive.copy(header = updatedHeader, action = updatedAction),
+        WhatsAppCloudSendBotInteractiveMessage(
+            interactive.copy(header = updatedHeader?.await(), action = updatedAction),
             recipientType,
             recipientId,
         )

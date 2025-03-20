@@ -27,12 +27,18 @@ import ai.tock.bot.connector.whatsapp.cloud.whatsAppCloudConnectorType
 import ai.tock.bot.engine.action.Action
 import ai.tock.bot.engine.action.SendSentence
 import ai.tock.bot.engine.user.PlayerId
+import ai.tock.shared.Executor
 import ai.tock.shared.error
+import ai.tock.shared.injector
+import ai.tock.shared.provide
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
 
 object SendActionConverter {
     private val logger = KotlinLogging.logger {}
+    private val executor: Executor get() = injector.provide()
 
     fun toBotMessage(whatsAppCloudApiService: WhatsAppCloudApiService, action: Action): WhatsAppCloudSendBotMessage? {
         return if (action is SendSentence) {
@@ -60,9 +66,11 @@ object SendActionConverter {
         apiService: WhatsAppCloudApiService,
         recipientId: PlayerId
     ) = try {
-        message.prepareMessage(
-            apiService,
-            (message.userId ?: recipientId.id).let { id -> UserHashedIdCache.getRealId(id) })
+        runBlocking(executor.asCoroutineDispatcher()) {
+            message.prepareMessage(
+                apiService,
+                (message.userId ?: recipientId.id).let { id -> UserHashedIdCache.getRealId(id) })
+        }
     } catch (e: Exception) {
         logger.error(e)
         null

@@ -29,7 +29,7 @@ data class WhatsAppCloudBotLocationMessage(
         override val recipientType: WhatsAppCloudBotRecipientType,
         override val userId: String? = null,
 ) : WhatsAppCloudBotMessage(WhatsAppCloudBotMessageType.location, userId) {
-    override fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
+    override suspend fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
             WhatsAppCloudSendBotLocationMessage(
                     location,
                     recipientType,

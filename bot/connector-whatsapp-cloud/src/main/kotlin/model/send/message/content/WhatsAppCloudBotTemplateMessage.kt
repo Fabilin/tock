@@ -23,15 +23,27 @@ import ai.tock.bot.connector.whatsapp.cloud.model.send.message.WhatsAppCloudSend
 import ai.tock.bot.connector.whatsapp.cloud.model.send.message.WhatsAppCloudSendBotTemplateMessage
 import ai.tock.bot.connector.whatsapp.cloud.services.WhatsAppCloudApiService
 import ai.tock.bot.engine.message.GenericMessage
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 data class WhatsAppCloudBotTemplateMessage(
     val template: WhatsAppCloudBotTemplate,
     override val recipientType: WhatsAppCloudBotRecipientType,
     override val userId: String? = null,
 ) : WhatsAppCloudBotMessage(WhatsAppCloudBotMessageType.template, userId) {
-    override fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage {
-        val updatedComponents = template.components
-        apiService.replaceWithRealImageId(updatedComponents, recipientId)
+    override suspend fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage {
+        val updatedComponents = coroutineScope {
+            template.components.map { component ->
+                async {
+                    when (component) {
+                        is WhatsappTemplateComponent.Carousel -> prepareCarousel(apiService, component)
+                        is WhatsappTemplateComponent.Button -> updateButtonPayloads(apiService, component)
+                        else -> component
+                    }
+                }
+            }.awaitAll()
+        }
 
         return WhatsAppCloudSendBotTemplateMessage(
             template.copy(components = updatedComponents),
@@ -39,6 +51,49 @@ data class WhatsAppCloudBotTemplateMessage(
             recipientId
         )
     }
+
+    private suspend fun prepareCarousel(
+        apiService: WhatsAppCloudApiService,
+        carousel: WhatsappTemplateComponent.Carousel
+    ): WhatsappTemplateComponent.Carousel = coroutineScope {
+        val updatedCards = carousel.cards.map { card ->
+            async {
+                val updatedComponents = card.components.map { component ->
+                    async {
+                        when (component) {
+                            is WhatsappTemplateComponent.Button -> updateButtonPayloads(apiService, component)
+                            is WhatsappTemplateComponent.Header -> updateCardHeader(apiService, component)
+                            else -> component
+                        }
+                    }
+                }.awaitAll()
+                card.copy(components = updatedComponents)
+            }
+        }.awaitAll()
+        carousel.copy(cards = updatedCards)
+    }
+
+    private suspend fun updateCardHeader(
+        apiService: WhatsAppCloudApiService,
+        header: WhatsappTemplateComponent.Header
+    ): WhatsappTemplateComponent {
+        val resolvedParameters = coroutineScope {
+            header.parameters.map { param ->
+                async { prepareHeaderParameter(param, apiService) }
+            }.awaitAll()
+        }
+        return header.copy(parameters = resolvedParameters)
+    }
+
+    private fun prepareHeaderParameter(
+        param: HeaderParameter,
+        apiService: WhatsAppCloudApiService
+    ): HeaderParameter = (param as? HeaderParameter.Image)?.image?.id?.let { id ->
+        HeaderParameter.Image(param.type, ImageId(apiService.getUploadedImageId(id)))
+    } ?: param
+
+    private fun updateButtonPayloads(apiService: WhatsAppCloudApiService, button: WhatsappTemplateComponent.Button): WhatsappTemplateComponent.Button =
+        button.copy(parameters = button.parameters.map(apiService::shortenPayload))
 
     override fun toGenericMessage(): GenericMessage =
         GenericMessage(

@@ -62,7 +62,7 @@ abstract class WhatsAppCloudBotMessage (val type: WhatsAppCloudBotMessageType, @
     /**
      * Processes a bot message in preparation for sending it to the WhatsApp cloud API
      */
-    internal abstract fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage
+    internal abstract suspend fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage
 
     @get:JsonIgnore
     val to: String get() = userId?.let { UserHashedIdCache.getRealId(it) } ?: "unknown"

@@ -31,7 +31,7 @@ data class WhatsAppCloudBotTextMessage (
         override val userId: String? = null,
         val previewUrl: Boolean = false,
 ) : WhatsAppCloudBotMessage(WhatsAppCloudBotMessageType.text, userId) {
-    override fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
+    override suspend fun prepareMessage(apiService: WhatsAppCloudApiService, recipientId: String): WhatsAppCloudSendBotMessage =
             WhatsAppCloudSendBotTextMessage(
                     text,
                     recipientType,

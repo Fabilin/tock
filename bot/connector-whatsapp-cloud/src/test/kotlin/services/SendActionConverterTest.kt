@@ -33,26 +33,98 @@ import ai.tock.bot.connector.whatsapp.cloud.services.SendActionConverter
 import ai.tock.bot.connector.whatsapp.cloud.services.WhatsAppCloudApiService
 import ai.tock.bot.engine.action.SendSentence
 import ai.tock.bot.engine.user.PlayerId
+import ai.tock.shared.Executor
+import ai.tock.shared.SimpleExecutor
+import ai.tock.shared.tockInternalInjector
+import com.github.salomonbrys.kodein.Kodein
+import com.github.salomonbrys.kodein.KodeinInjector
+import com.github.salomonbrys.kodein.bind
+import com.github.salomonbrys.kodein.singleton
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.spyk
+import io.mockk.verify
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.random.Random
 import kotlin.test.assertEquals
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class SendActionConverterTest {
+    companion object {
+        private val executor = spyk(SimpleExecutor(10))
+
+        @BeforeAll
+        @JvmStatic
+        fun injectExecutor() {
+            tockInternalInjector = KodeinInjector().apply {
+                inject(
+                    Kodein {
+                        import(
+                            Kodein.Module {
+                                bind<Executor>() with singleton { executor }
+                            }
+                        )
+                    }
+                )
+            }
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun resetInjection() {
+            tockInternalInjector = KodeinInjector()
+        }
+    }
+
+    private val nextTaskId = AtomicInteger()
+
+    @BeforeEach
+    fun setup() {
+        every { executor.executeBlocking(any()) } answers {
+            // The ScheduledThreadPoolExecutor used by TestExecutor executes tasks scheduled for
+            // exactly the same execution time in first-in-first-out (FIFO) order of submission,
+            // so we fuzz the execution time to ensure parallel execution
+            executor.executeBlocking(Duration.ofMillis(Random.nextLong(10))) {
+                firstArg<() -> Unit>()()
+            }
+        }
+    }
+
+    @AfterEach
+    fun teardown() {
+        clearMocks(executor)
+    }
+
     @Test
-    fun `message conversion is correct for reply button`() {
+    fun `message conversion happens on executor in parallel`() {
         mockkObject(UserHashedIdCache)
         val userId = "4567876543"
         every { UserHashedIdCache.getRealId(userId) } returns userId
         val whatsAppCloudApiService = mockk<WhatsAppCloudApiService> {
             every { getUploadedImageId("fish.png") } answers {
+                println("Getting uploaded image id on thread ${Thread.currentThread().name} at ${Instant.now()}")
+                Thread.sleep(1000)
+                println("Done uploading image id at ${Instant.now()}")
                 "test-image-id"
             }
             every { shortenPayload("button1") } answers {
+                println("Shortening payload 1 on thread ${Thread.currentThread().name} at ${Instant.now()}")
+                Thread.sleep(2000)
+                println("Done shortening payload 1 at ${Instant.now()}")
                 "button1id"
             }
             every { shortenPayload("button2") } answers {
+                println("Shortening payload 2 on thread ${Thread.currentThread().name} at ${Instant.now()}")
+                Thread.sleep(500)
+                println("Done shortening payload 2 at ${Instant.now()}")
                 "button2id"
             }
         }
@@ -90,6 +162,9 @@ class SendActionConverterTest {
                 )
             )
         )
+        verify(atLeast = 3) {
+            executor.executeBlocking(any())
+        }
         assertEquals(WhatsAppCloudSendBotInteractiveMessage(
             interactive = WhatsAppCloudBotInteractive(
                 type = WhatsAppCloudBotInteractiveType.button,
