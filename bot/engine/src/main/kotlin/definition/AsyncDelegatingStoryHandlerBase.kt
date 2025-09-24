@@ -77,22 +77,22 @@ abstract class AsyncDelegatingStoryHandlerBase<T : AsyncStoryHandling, D>(
         val preconditionResult = checkPreconditions().invoke(bus)
         if (!bus.isEndCalled()) {
             val storyDefinition = findStoryDefinition(bus)
-            val handler: T = newHandlerDefinition(bus, preconditionResult)
+            val handling: T = newHandling(bus, preconditionResult)
 
             // final round of step selection (after Story.computeCurrentStep)
-            val step = selectStepFromContext(bus, handler, preconditionResult, storyDefinition)
+            val step = selectStepFromContext(bus, handling, preconditionResult, storyDefinition)
 
             if (step != null) {
-                handler.handleStep(bus, step, preconditionResult)
+                handling.handleStep(bus, step, preconditionResult)
             }
 
             if (!bus.isEndCalled()) {
-                handler.handle()
+                handling.handle()
             }
         }
     }
 
-    abstract fun newHandlerDefinition(bus: AsyncBus, preconditionResult: D): T
+    abstract fun newHandling(bus: AsyncBus, preconditionResult: D): T
 
     protected open suspend fun T.handleStep(bus: AsyncBus, step: AsyncStoryStep<T>, preconditionResult: D) {
         if (step is AsyncStoryDataStep<*, *, *>) {
