@@ -68,7 +68,7 @@ export class EntityDetailsComponent {
       }
     });
     dialogRef.onClose.subscribe((result) => {
-      if (result === action) {
+      if (result.toLowerCase() === action.toLowerCase()) {
         this.nlp.removeSubEntity(this.state.currentApplication, this.entityType, this.entity).subscribe(
           (_) => {
             this.state.resetConfiguration();

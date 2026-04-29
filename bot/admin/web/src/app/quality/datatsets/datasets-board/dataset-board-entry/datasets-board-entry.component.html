@@ -8,28 +8,28 @@
     <div
       (click)="switchQuestionsDetail()"
       class="pointer unselectable"
-      nbTooltip="Show questions"
+      [nbTooltip]="'quality.dataset-board-entry.show_questions_tooltip' | transloco"
     >
       <div
         class="rounded px-2 py-1"
         [ngClass]="{ 'background-basic-color-2': displayQuestionsDetail }"
       >
         <div class="list-entry-name">{{ dataset.questions.length }}</div>
-        <div class="list-entry-desc text-muted">questions</div>
+        <div class="list-entry-desc text-muted">{{ 'quality.dataset-board-entry.questions_label' | transloco }}</div>
       </div>
     </div>
 
     <div
       (click)="switchRunsDetail()"
       class="pointer unselectable"
-      nbTooltip="Show runs"
+      [nbTooltip]="'quality.dataset-board-entry.show_runs_tooltip' | transloco"
     >
       <div
         class="rounded px-2 py-1"
         [ngClass]="{ 'background-basic-color-2': displayRunsDetail }"
       >
         <div class="list-entry-name">{{ dataset.runs.length }}</div>
-        <div class="list-entry-desc text-muted">runs</div>
+        <div class="list-entry-desc text-muted">{{ 'quality.dataset-board-entry.runs_label' | transloco }}</div>
       </div>
     </div>
 
@@ -59,7 +59,6 @@
           'text-warning': latestRun.state === datasetRunState.QUEUED
         }"
       >
-        <!-- {{ latestRunDuration$ | async }} -->
         {{ runDurations$[latestRun.id] | async }}
       </div>
     </div>
@@ -71,7 +70,7 @@
           ghost
           shape="round"
           status="info"
-          nbTooltip="View runs details"
+          [nbTooltip]="'quality.dataset-board-entry.view_runs_details_tooltip' | transloco"
           class="mb-2"
           [disabled]="!canViewHistory"
           routerLink="/quality/datasets/detail/{{ dataset.id }}"
@@ -85,7 +84,7 @@
           ghost
           shape="round"
           status="warning"
-          nbTooltip="Cancel active run"
+          [nbTooltip]="'quality.dataset-board-entry.cancel_active_run_tooltip' | transloco"
           class="mb-2"
           (click)="confirmCancelRun(getLatestRun())"
         >
@@ -98,7 +97,7 @@
           ghost
           shape="round"
           status="success"
-          nbTooltip="Run dataset"
+          [nbTooltip]="'quality.dataset-board-entry.run_dataset_tooltip' | transloco"
           class="mb-2"
           (click)="runDataset()"
         >
@@ -110,7 +109,7 @@
           ghost
           shape="round"
           status="warning"
-          nbTooltip="Edit dataset"
+          [nbTooltip]="'quality.dataset-board-entry.edit_dataset_tooltip' | transloco"
           class="mb-2"
           [disabled]="!canEdit"
           (click)="editDataset()"
@@ -123,7 +122,7 @@
           ghost
           shape="round"
           status="danger"
-          nbTooltip="Delete dataset"
+          [nbTooltip]="'quality.dataset-board-entry.delete_dataset_tooltip' | transloco"
           class="mb-2"
           [disabled]="!canDelete"
           (click)="confirmDeleteDataset()"
@@ -150,7 +149,7 @@
             nbButton
             ghost
             size="tiny"
-            nbTooltip="Copy question"
+            [nbTooltip]="'quality.dataset-board-entry.copy_question_tooltip' | transloco"
             (click)="copyString(question.question)"
           >
             <nb-icon icon="copy"></nb-icon>
@@ -160,7 +159,7 @@
             nbButton
             ghost
             size="tiny"
-            nbTooltip="Test this question in a dialog"
+            [nbTooltip]="'quality.dataset-board-entry.test_question_in_dialog_tooltip' | transloco"
             (click)="testSentence(question.question)"
           >
             <nb-icon icon="terminal-plus"></nb-icon>
@@ -178,70 +177,70 @@
       class="text-center text-muted"
       *ngIf="!dataset.runs?.length"
     >
-      No runs yet
+      {{ 'quality.dataset-board-entry.no_runs_yet' | transloco }}
     </div>
 
     <ng-container *ngIf="dataset.runs?.length">
       <div class="runs-grid runs-grid-header px-2 mb-2 mr-2">
         <div
           class="ellipsis"
-          nbTooltip="Run started at"
+          [nbTooltip]="'quality.dataset-board-entry.run_started_at_tooltip' | transloco"
         >
-          Start
+          {{ 'quality.dataset-board-entry.start_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Run ended at"
+          [nbTooltip]="'quality.dataset-board-entry.run_ended_at_tooltip' | transloco"
         >
-          End
+          {{ 'quality.dataset-board-entry.end_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Run duration"
+          [nbTooltip]="'quality.dataset-board-entry.run_duration_tooltip' | transloco"
         >
-          Duration
+          {{ 'quality.dataset-board-entry.duration_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of questions in the dataset at the time the run is executed"
+          [nbTooltip]="'quality.dataset-board-entry.questions_in_dataset_tooltip' | transloco"
         >
-          Questions
+          {{ 'quality.dataset-board-entry.questions_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of successful questions"
+          [nbTooltip]="'quality.dataset-board-entry.successful_questions_tooltip' | transloco"
         >
-          Completed
+          {{ 'quality.dataset-board-entry.completed_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of questions processed by intent detection"
+          [nbTooltip]="'quality.dataset-board-entry.intent_detection_questions_tooltip' | transloco"
         >
-          Intent
+          {{ 'quality.dataset-board-entry.intent_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of failed questions (Execution failures | Technical errors)"
+          [nbTooltip]="'quality.dataset-board-entry.failed_questions_tooltip' | transloco"
         >
-          Failed
+          {{ 'quality.dataset-board-entry.failed_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of questions processed by RAG chain with relevant documentation retrieved"
+          [nbTooltip]="'quality.dataset-board-entry.found_in_context_questions_tooltip' | transloco"
         >
-          Found in context
+          {{ 'quality.dataset-board-entry.found_in_context_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Number of questions processed by RAG chain with no relevant documentation retrieved"
+          [nbTooltip]="'quality.dataset-board-entry.not_found_in_context_questions_tooltip' | transloco"
         >
-          Not found in context
+          {{ 'quality.dataset-board-entry.not_found_in_context_column' | transloco }}
         </div>
         <div
           class="ellipsis"
-          nbTooltip="Current run status"
+          [nbTooltip]="'quality.dataset-board-entry.current_run_status_tooltip' | transloco"
         >
-          Run State
+          {{ 'quality.dataset-board-entry.run_state_column' | transloco }}
         </div>
         <div class="ellipsis"></div>
         <div class="ellipsis"></div>
@@ -255,13 +254,13 @@
         >
           <div
             class="runs-grid-entry text-muted"
-            nbTooltip="{{ run.startTime | date: 'y/MM/dd - HH:mm' }}"
+            [nbTooltip]="run.startTime | date: 'y/MM/dd - HH:mm'"
           >
             {{ run.startTime | date: 'y/MM/dd - HH:mm' }}
           </div>
           <div
             class="runs-grid-entry text-muted"
-            nbTooltip="{{ run.endTime | date: 'y/MM/dd - HH:mm' }}"
+            [nbTooltip]="run.endTime | date: 'y/MM/dd - HH:mm'"
           >
             <ng-container *ngIf="run.endTime; else noEndTime">
               {{ run.endTime | date: 'y/MM/dd - HH:mm' }}
@@ -293,7 +292,7 @@
               class="font-small text-warning"
               *ngIf="!run.stats.failedQuestions && !run.stats.ragAnswerStatusCounts.technical_error"
             >
-              ({{ getPercentageNotFound(run) | number: '1.0' }}%)
+              ({{ getPercentageNotFound(run) | number: '1.0-0' }}%)
             </small>
           </div>
 
@@ -310,7 +309,7 @@
               nbButton
               size="tiny"
               shape="round"
-              nbTooltip="Compare with latest run"
+              [nbTooltip]="'quality.dataset-board-entry.compare_with_latest_run_tooltip' | transloco"
               [routerLink]="['/quality/datasets/detail', dataset.id]"
               [queryParams]="{ compareRunId: run.id }"
             >
@@ -324,7 +323,7 @@
               size="tiny"
               shape="round"
               status="primary"
-              nbTooltip="Create an evaluation sample based on the results of this run"
+              [nbTooltip]="'quality.dataset-board-entry.create_evaluation_sample_tooltip' | transloco"
               (click)="createSample(run)"
               [disabled]="run.stats.completedQuestions < 1"
             >
@@ -338,7 +337,7 @@
               size="tiny"
               shape="round"
               status="danger"
-              nbTooltip="Delete this run"
+              [nbTooltip]="'quality.dataset-board-entry.delete_this_run_tooltip' | transloco"
               (click)="confirmDeleteRun(run)"
             >
               <nb-icon icon="trash"></nb-icon>

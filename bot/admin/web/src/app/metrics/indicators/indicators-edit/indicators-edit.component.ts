@@ -236,7 +236,7 @@ export class IndicatorsEditComponent implements OnChanges {
         }
       });
       dialogRef.onClose.subscribe((result) => {
-        if (result === action) {
+        if (result.toLowerCase() === action.toLowerCase()) {
           this.onClose.emit(true);
         }
       });

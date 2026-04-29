@@ -7,6 +7,7 @@ import { Dataset } from '../models';
 import { DatasetsService } from '../services/datasets.service';
 import { getExportFileName } from '../../../shared/utils';
 import { saveAs } from 'file-saver-es';
+import { TranslocoService } from '@jsverse/transloco';
 
 interface QuestionForm {
   question: FormControl<string>;
@@ -17,12 +18,6 @@ interface DatasetForm {
   name: FormControl<string>;
   description: FormControl<string>;
   questions: FormArray<FormGroup<QuestionForm>>;
-}
-
-function atLeastOneFilledQuestion(control: AbstractControl): ValidationErrors | null {
-  const array = control as FormArray;
-  const hasFilled = array.controls.some((g) => (g as FormGroup).get('question')?.value?.trim());
-  return hasFilled ? null : { custom: 'At least one question is required.' };
 }
 
 const question_minLength = 2;
@@ -59,7 +54,7 @@ export class DatasetCreateComponent implements OnInit, OnDestroy {
   form = new FormGroup<DatasetForm>({
     name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(5), Validators.maxLength(100)] }),
     description: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(750)] }),
-    questions: new FormArray<FormGroup<QuestionForm>>([], [atLeastOneFilledQuestion])
+    questions: new FormArray<FormGroup<QuestionForm>>([], [(control) => this.validateAtLeastOneQuestion(control)])
   });
 
   @ViewChildren('questionInput') questionInputs: QueryList<ElementRef<HTMLInputElement>>;
@@ -69,8 +64,15 @@ export class DatasetCreateComponent implements OnInit, OnDestroy {
     public dialogRef: NbDialogRef<DatasetCreateComponent>,
     private stateService: StateService,
     private datasetsService: DatasetsService,
-    private toastrService: NbToastrService
+    private toastrService: NbToastrService,
+    private transloco: TranslocoService
   ) {}
+
+  validateAtLeastOneQuestion(control: AbstractControl): ValidationErrors | null {
+    const array = control as FormArray;
+    const hasFilled = array.controls.some((g) => (g as FormGroup).get('question')?.value?.trim());
+    return hasFilled ? null : { custom: this.transloco.translate('quality.dataset-create.at_least_one_question_required') };
+  }
 
   ngOnInit(): void {
     if (this.isEditMode && this.dataset) {
@@ -240,7 +242,11 @@ export class DatasetCreateComponent implements OnInit, OnDestroy {
         next: (created: Dataset) => this.dialogRef.close(created),
         error: () => {
           this.isLoading = false;
-          this.toastrService.danger('An error occured', 'Error', { duration: 5000 });
+          this.toastrService.danger(
+            this.transloco.translate('quality.dataset-create.an_error_occurred'),
+            this.transloco.translate('quality.dataset-create.error_title'),
+            { duration: 5000 }
+          );
         }
       });
   }
@@ -257,7 +263,11 @@ export class DatasetCreateComponent implements OnInit, OnDestroy {
         next: (updated: Dataset) => this.dialogRef.close(updated),
         error: () => {
           this.isLoading = false;
-          this.toastrService.danger('An error occured', 'Error', { duration: 5000 });
+          this.toastrService.danger(
+            this.transloco.translate('quality.dataset-create.an_error_occurred'),
+            this.transloco.translate('quality.dataset-create.error_title'),
+            { duration: 5000 }
+          );
         }
       });
   }

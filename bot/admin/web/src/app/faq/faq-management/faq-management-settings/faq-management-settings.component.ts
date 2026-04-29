@@ -147,7 +147,7 @@ export class FaqManagementSettingsComponent implements OnInit, OnDestroy {
         }
       });
       dialogRef.onClose.subscribe((result) => {
-        if (result === action) {
+        if (result.toLowerCase() === action.toLowerCase()) {
           this.onClose.emit(true);
         }
       });
@@ -175,7 +175,7 @@ export class FaqManagementSettingsComponent implements OnInit, OnDestroy {
           }
         });
         dialogRef.onClose.subscribe((result) => {
-          if (result === action) {
+          if (result.toLowerCase() === action.toLowerCase()) {
             this.saveSettings(this.form.value as Settings);
           }
         });

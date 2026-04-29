@@ -5,7 +5,7 @@
       nbButton
       ghost
       shape="round"
-      nbTooltip="Close"
+      [nbTooltip]="'shared.debug-viewer-dialog.close_tooltip' | transloco"
       (click)="cancel()"
     >
       <nb-icon icon="x-lg"></nb-icon>
@@ -18,26 +18,32 @@
       *ngIf="hasDocuments"
     >
       <header class="documents-summary__header">
-        <span class="documents-summary__title">Documents ({{ allDocuments.length }})</span>
+        <span class="documents-summary__title">
+          {{ 'shared.debug-viewer-dialog.documents_title' | transloco: { count: allDocuments.length } }}
+        </span>
         <span
           class="documents-summary__counts"
           *ngIf="hasContextUsage"
         >
-          <span class="badge badge--used">{{ usedDocuments.length }} used</span>
-          <span class="badge badge--unused">{{ unusedDocuments.length }} unused</span>
+          <span class="badge badge--used"> {{ usedDocuments.length }} {{ 'shared.debug-viewer-dialog.used' | transloco }} </span>
+          <span class="badge badge--unused"> {{ unusedDocuments.length }} {{ 'shared.debug-viewer-dialog.unused' | transloco }} </span>
         </span>
       </header>
 
       <ng-container *ngIf="hasContextUsage; else flatList">
         <ng-container *ngIf="usedDocuments.length">
-          <p class="documents-summary__group-label documents-summary__group-label--used">Used</p>
+          <p class="documents-summary__group-label documents-summary__group-label--used">
+            {{ 'shared.debug-viewer-dialog.group_label_used' | transloco }}
+          </p>
           <ng-container *ngFor="let doc of usedDocuments">
             <ng-container *ngTemplateOutlet="docRow; context: { $implicit: doc }"></ng-container>
           </ng-container>
         </ng-container>
 
         <ng-container *ngIf="unusedDocuments.length">
-          <p class="documents-summary__group-label documents-summary__group-label--unused">Unused</p>
+          <p class="documents-summary__group-label documents-summary__group-label--unused">
+            {{ 'shared.debug-viewer-dialog.group_label_unused' | transloco }}
+          </p>
           <ng-container *ngFor="let doc of unusedDocuments">
             <ng-container *ngTemplateOutlet="docRow; context: { $implicit: doc }"></ng-container>
           </ng-container>
@@ -51,7 +57,6 @@
       </ng-template>
     </section>
 
-    <!-- Reusable document row -->
     <ng-template
       #docRow
       let-doc
@@ -93,14 +98,19 @@
             class="doc-item__reason"
             *ngIf="doc.reason"
           >
-            <span class="doc-item__label">Reason:</span> {{ doc.reason }}
+            <span class="doc-item__label">
+              {{ 'shared.debug-viewer-dialog.reason' | transloco }}
+            </span>
+            {{ doc.reason }}
           </p>
 
           <div
             class="doc-item__block"
             *ngIf="doc.sentences?.length"
           >
-            <span class="doc-item__label">Sentences ({{ doc.sentences.length }})</span>
+            <span class="doc-item__label">
+              {{ 'shared.debug-viewer-dialog.sentences' | transloco: { count: doc.sentences.length } }}
+            </span>
             <ul class="doc-item__sentences">
               <li *ngFor="let s of doc.sentences">{{ s }}</li>
             </ul>
@@ -110,7 +120,9 @@
             class="doc-item__block"
             *ngIf="doc.content"
           >
-            <span class="doc-item__label">Content</span>
+            <span class="doc-item__label">
+              {{ 'shared.debug-viewer-dialog.content' | transloco }}
+            </span>
             <pre class="doc-item__content">{{ doc.content }}</pre>
           </div>
 
@@ -118,7 +130,9 @@
             class="doc-item__block"
             *ngIf="doc.metadataEntries?.length"
           >
-            <span class="doc-item__label">Metadata</span>
+            <span class="doc-item__label">
+              {{ 'shared.debug-viewer-dialog.metadata' | transloco }}
+            </span>
             <dl class="doc-item__meta">
               <ng-container *ngFor="let m of doc.metadataEntries">
                 <dt>{{ m.key }}</dt>
@@ -130,12 +144,13 @@
       </div>
     </ng-template>
 
-    <!-- Separator: everything below is the full received JSON -->
     <div
       class="json-separator"
       *ngIf="hasDocuments"
     >
-      <span class="json-separator__label">Full debug JSON</span>
+      <span class="json-separator__label">
+        {{ 'shared.debug-viewer-dialog.full_debug_json' | transloco }}
+      </span>
     </div>
 
     <tock-json-iterator

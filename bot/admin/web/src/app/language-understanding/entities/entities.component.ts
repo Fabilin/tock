@@ -107,7 +107,7 @@ export class EntitiesComponent implements OnInit {
       }
     });
     dialogRef.onClose.subscribe((result) => {
-      if (result === action) {
+      if (result.toLowerCase() === action.toLowerCase()) {
         this.nlp.removeEntityType(entityType).subscribe(
           (_) => {
             this.state.resetConfiguration();
