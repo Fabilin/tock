@@ -19,9 +19,9 @@ const config: TranslocoGlobalConfig = {
   keysManager: {
     input: 'src',
     output: 'src/assets/i18n',
-    addMissingKeys: true,
-    unflat: true,
-    emitErrorOnExtraKeys: false
+    addMissingKeys: false,
+    unflat: false,
+    emitErrorOnExtraKeys: true
   }
 };
 
