@@ -375,7 +375,7 @@ export class SentenceTrainingEntryComponent implements OnInit, DoCheck, OnDestro
       this.toastrService.warning(this.transloco.translate('shared.sentence-training-entry.messages.intent-already-exists', { name }));
     } else {
       if (this.state.intentExistsInOtherApplication(name)) {
-        const action = 'confirm';
+        const action = this.transloco.translate('common.actions.confirm');
         const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
           context: {
             title: this.transloco.translate('shared.sentence-training-entry.dialogs.intent-already-used-title'),

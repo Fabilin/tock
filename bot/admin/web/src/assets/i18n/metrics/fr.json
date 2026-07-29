@@ -37,7 +37,13 @@
     "remove_value_tooltip": "Supprimer cette valeur",
     "add_new_value_button": "Ajouter une nouvelle valeur",
     "cancel_button": "Annuler",
-    "save_button": "Enregistrer"
+    "save_button": "Enregistrer",
+    "value_label_validation_error": "Le libellé de la valeur doit contenir au moins une lettre",
+    "label_validation_error": "Le libellé doit contenir au moins une lettre",
+    "indicator_label_unique_error": "Il existe déjà un indicateur avec le même libellé",
+    "cancel_edit_indicator_title": "Annuler la modification de l'indicateur",
+    "cancel_create_indicator_title": "Annuler la création de l'indicateur",
+    "cancel_confirmation_message": "Êtes-vous sûr de vouloir annuler ? Les modifications ne seront pas enregistrées."
   },
   "metrics-board": {
     "title": "Métriques",

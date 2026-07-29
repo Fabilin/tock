@@ -24,7 +24,9 @@
       "save": "Enregistrer",
       "select": "Sélectionner",
       "yes": "Oui",
-      "no": "Non"
+      "no": "Non",
+      "overwrite": "Ecraser",
+      "confirm": "Confirmer"
     },
     "sort": {
       "ascending": "Croissant",
@@ -275,7 +277,9 @@
         "no-sentence-selected-title": "Aucune phrase sélectionnée",
         "change-intent-all-subtitle": "Vous n'avez sélectionné aucune phrase.\nSouhaitez-vous modifier l'intention de toutes les phrases correspondant aux critères de recherche ci-dessus ?",
         "change-entity-all-subtitle": "Vous n'avez sélectionné aucune phrase.\nSouhaitez-vous modifier l'entité de toutes les phrases correspondant aux critères de recherche ci-dessus ?",
+        "change-entity-all-action": "Modifier l'intention de tous les résultats",
         "translate-all-subtitle": "Vous n'avez sélectionné aucune phrase à traduire.\nSouhaitez-vous traduire toutes les phrases correspondant aux critères de recherche ci-dessus ?",
+        "translate-all-action": "Traduire tous les résultats",
         "change-all-action": "Modifier toutes les résultats"
       },
       "messages": {

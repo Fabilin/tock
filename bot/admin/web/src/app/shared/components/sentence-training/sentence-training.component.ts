@@ -433,7 +433,7 @@ export class SentenceTrainingComponent implements OnInit, OnDestroy {
 
   changeSentencesIntent(intentId: string, changeAll?: boolean): void {
     if (!this.selection.selected.length && !changeAll) {
-      const action = 'Change intent of all results';
+      const action = this.transloco.translate('shared.sentence-training.dialogs.change-entity-all-action');
       const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
         context: {
           title: this.transloco.translate('shared.sentence-training.dialogs.no-sentence-selected-title'),
@@ -481,7 +481,7 @@ export class SentenceTrainingComponent implements OnInit, OnDestroy {
 
   changeSentencesEntity(entities: { old: EntityDefinition; new: EntityDefinition }, changeAll?: boolean): void {
     if (!this.selection.selected.length && !changeAll) {
-      const action = 'Change intent of all results';
+      const action = this.transloco.translate('shared.sentence-training.dialogs.change-entity-all-action');
       const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
         context: {
           title: this.transloco.translate('shared.sentence-training.dialogs.no-sentence-selected-title'),
@@ -531,7 +531,7 @@ export class SentenceTrainingComponent implements OnInit, OnDestroy {
 
   translateSentences(locale: string, translateAll?: boolean): void {
     if (!this.selection.selected.length && !translateAll) {
-      const action = 'Translate all results';
+      const action = this.transloco.translate('shared.sentence-training.dialogs.translate-all-action');
       const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
         context: {
           title: this.transloco.translate('shared.sentence-training.dialogs.no-sentence-selected-title'),

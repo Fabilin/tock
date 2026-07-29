@@ -251,7 +251,7 @@ export class SentenceGenerationSettingsComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.toastrService.danger(
             this.transloco.translate('configuration.sentence-generation-settings.saveErrorMessage'),
-            this.transloco.translate('common.error'),
+            this.transloco.translate('common.messages.error'),
             {
               duration: 5000,
               status: 'danger'
@@ -417,7 +417,7 @@ export class SentenceGenerationSettingsComponent implements OnInit, OnDestroy {
   }
 
   confirmSettingsDeletion(): void {
-    const confirmAction = this.transloco.translate('common.actions.confirm');
+    const confirmAction = this.transloco.translate('common.actions.yes');
     const cancelAction = this.transloco.translate('common.actions.cancel');
 
     const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {

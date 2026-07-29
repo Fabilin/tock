@@ -60,7 +60,7 @@ export class SynchronizationComponent implements OnInit {
       ? this.transloco.translate('configuration.synchronization.inboxMessagesSynchronized')
       : this.transloco.translate('configuration.synchronization.inboxMessagesNotSynchronized');
 
-    const action = 'overwrite';
+    const action = this.transloco.translate('common.actions.overwrite');
 
     let dialogRef = this.dialog.openDialog(ChoiceDialogComponent, {
       context: {
@@ -73,7 +73,7 @@ ${this.transloco.translate('configuration.synchronization.overwriteSubtitlePart3
 ${this.transloco.translate('configuration.synchronization.overwriteWarning')}`,
         actions: [
           { actionName: this.transloco.translate('common.actions.cancel'), buttonStatus: 'basic', ghost: true },
-          { actionName: this.transloco.translate('common.actions.overwrite'), buttonStatus: 'danger' }
+          { actionName: action, buttonStatus: 'danger' }
         ],
         modalStatus: 'danger'
       }

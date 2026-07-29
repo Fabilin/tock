@@ -37,7 +37,13 @@
     "remove_value_tooltip": "Remove this value",
     "add_new_value_button": "Add a new value",
     "cancel_button": "Cancel",
-    "save_button": "Save"
+    "save_button": "Save",
+    "value_label_validation_error": "Value label must contain at least one letter",
+    "label_validation_error": "Label must contain at least one letter",
+    "indicator_label_unique_error": "There is already an indicator with the same label",
+    "cancel_edit_indicator_title": "Cancel edit indicator",
+    "cancel_create_indicator_title": "Cancel create indicator",
+    "cancel_confirmation_message": "Are you sure you want to cancel? Changes will not be saved."
   },
   "metrics-board": {
     "title": "Metrics",

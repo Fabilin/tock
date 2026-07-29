@@ -111,5 +111,21 @@
     "toggleFaqSubtitle": "Êtes-vous sûr de vouloir {{ action }} cette FAQ ?",
     "deleteFaqTitle": "Supprimer la FAQ \"{{ title }}\"",
     "deleteFaqSubtitle": "Êtes-vous sûr de vouloir supprimer cette FAQ ?"
+  },
+  "faq-management-settings": {
+    "title": "Paramètres FAQ",
+    "description": "Les paramètres sont partagés par toutes les FAQ de ce bot",
+    "satisfaction_checkbox_label": "Demander une évaluation de satisfaction après avoir répondu à une question FAQ",
+    "story_label": "Sélectionner une story",
+    "story_placeholder": "Sélectionner une story",
+    "close_tooltip": "Fermer",
+    "cancel_button": "Annuler",
+    "save_button": "Enregistrer",
+    "cancel_edit_settings_title": "Annuler la modification des paramètres",
+    "cancel_edit_settings_message": "Êtes-vous sûr de vouloir annuler ? Les modifications ne seront pas enregistrées.",
+    "disable_satisfaction_title": "Désactiver l'évaluation de satisfaction",
+    "disable_satisfaction_message": "Cela désactivera la question d'évaluation de satisfaction pour toutes les FAQ. Confirmez-vous ?",
+    "settings_updated_success": "Paramètres mis à jour avec succès",
+    "success_title": "Succès"
   }
 }

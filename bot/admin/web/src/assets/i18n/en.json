@@ -24,7 +24,9 @@
       "save": "Save",
       "select": "Select",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "overwrite": "Overwrite",
+      "confirm": "Confirm"
     },
     "sort": {
       "ascending": "Ascending",
@@ -275,7 +277,9 @@
         "no-sentence-selected-title": "No sentence selected",
         "change-intent-all-subtitle": "You haven't selected any sentences.\nWould you like to change the intent of all the sentences matching the search criteria above?",
         "change-entity-all-subtitle": "You haven't selected any sentences.\nWould you like to change the entity of all the sentences matching the search criteria above?",
+        "change-entity-all-action": "Change intent of all results",
         "translate-all-subtitle": "You haven't selected any sentences to translate.\nWould you like to translate all the sentences matching the search criteria above?",
+        "translate-all-action": "Translate all results",
         "change-all-action": "Change all results"
       },
       "messages": {

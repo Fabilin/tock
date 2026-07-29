@@ -111,5 +111,21 @@
     "toggleFaqSubtitle": "Are you sure you want to {{ action }} this faq?",
     "deleteFaqTitle": "Delete faq \"{{ title }}\"",
     "deleteFaqSubtitle": "Are you sure you want to delete this faq?"
+  },
+  "faq-management-settings": {
+    "title": "FAQ Parameters",
+    "description": "Parameters are shared by all FAQ of this bot",
+    "satisfaction_checkbox_label": "Ask for satisfaction after answering on FAQ question",
+    "story_label": "Select story",
+    "story_placeholder": "Select story",
+    "close_tooltip": "Close",
+    "cancel_button": "Cancel",
+    "save_button": "Save",
+    "cancel_edit_settings_title": "Cancel edit settings",
+    "cancel_edit_settings_message": "Are you sure you want to cancel? Changes will not be saved.",
+    "disable_satisfaction_title": "Disable satisfaction",
+    "disable_satisfaction_message": "This will disable the satisfaction question for all FAQs. Do you confirm?",
+    "settings_updated_success": "Settings successfully updated",
+    "success_title": "Success"
   }
 }

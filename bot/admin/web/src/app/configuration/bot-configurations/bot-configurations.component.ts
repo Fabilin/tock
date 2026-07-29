@@ -128,7 +128,7 @@ export class BotConfigurationsComponent implements OnInit, OnDestroy {
   }
 
   remove(conf: BotApplicationConfiguration): void {
-    const action = 'remove';
+    const action = this.transloco.translate('common.actions.remove');
     const dialogRef = this.dialogService.openDialog(ChoiceDialogComponent, {
       context: {
         title: `${this.transloco.translate('configuration.bot-configurations.deleteConfigurationTitle')} "${conf.name}"`,

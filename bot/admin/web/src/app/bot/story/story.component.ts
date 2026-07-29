@@ -290,7 +290,7 @@ export class StoryComponent implements OnChanges {
   }
 
   deleteCustomAnswers(answer: BotConfiguredAnswer) {
-    const action = 'delete';
+    const action = this.transloco.translate('common.actions.delete');
     this.nbDialogService
       .open(ChoiceDialogComponent, {
         closeOnEsc: true,
@@ -299,7 +299,7 @@ export class StoryComponent implements OnChanges {
           subtitle: this.transloco.translate('bot.story.deleteCustomAnswersSubtitle', { configuration: answer.botConfiguration }),
           actions: [
             { actionName: this.transloco.translate('common.actions.cancel'), buttonStatus: 'basic', ghost: true },
-            { actionName: this.transloco.translate('common.actions.delete'), buttonStatus: 'danger' }
+            { actionName: action, buttonStatus: 'danger' }
           ],
           modalStatus: 'danger'
         }
@@ -346,7 +346,7 @@ export class StoryComponent implements OnChanges {
   }
 
   deleteCustomSteps(steps: BotConfiguredSteps) {
-    const action = 'delete';
+    const action = this.transloco.translate('common.actions.delete');
     this.nbDialogService
       .open(ChoiceDialogComponent, {
         closeOnEsc: true,
@@ -355,7 +355,7 @@ export class StoryComponent implements OnChanges {
           subtitle: this.transloco.translate('bot.story.deleteCustomStepsSubtitle', { configuration: steps.botConfiguration }),
           actions: [
             { actionName: this.transloco.translate('common.actions.cancel'), buttonStatus: 'basic', ghost: true },
-            { actionName: this.transloco.translate('common.actions.delete'), buttonStatus: 'danger' }
+            { actionName: action, buttonStatus: 'danger' }
           ],
           modalStatus: 'danger'
         }
