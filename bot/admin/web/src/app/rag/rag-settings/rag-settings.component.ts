@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2017/2025 SNCF Connect & Tech
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, forkJoin, Observable, Subject, takeUntil, pairwise, from } from 'rxjs';
@@ -45,6 +29,7 @@ import { saveAs } from 'file-saver-es';
 import { FileValidators } from '../../shared/validators';
 import { CanComponentDeactivate } from '../../shared/guards/can-deactivate.guard';
 import { DirtyStateGuard, DirtyStateService } from '../../core/dirty-state.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 interface RagSettingsForm {
   id: FormControl<string>;
@@ -109,7 +94,8 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
     private botConfiguration: BotConfigurationService,
     private nbWindowService: NbWindowService,
     private nbDialogService: NbDialogService,
-    private dirtyState: DirtyStateService
+    private dirtyState: DirtyStateService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -323,7 +309,7 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
   shouldDisplayPromptParam(parentGroup: string, param: ProvidersConfigurationParam) {
     // Goal : We want templates to use the Jinja2 format by default.
     if (param.key === 'formatter') {
-      // We only care about the “formatter” param
+      // We only care about the "formatter" param
       if (this.form.get(parentGroup).get(param.key).value === PromptDefinitionFormatter.jinja2) {
         // If the format is already Jinja2, we can hide the choice control
         return false;
@@ -472,21 +458,29 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
           this.form.markAsPristine();
 
           this.isSubmitted = false;
-          this.toastrService.success(`Rag settings succesfully saved`, 'Success', {
-            duration: 5000,
-            status: 'success'
-          });
+          this.toastrService.success(
+            this.translocoService.translate('rag.rag-settings.settings_saved_success'),
+            this.translocoService.translate('rag.rag-settings.success_title'),
+            {
+              duration: 5000,
+              status: 'success'
+            }
+          );
           this.loading = false;
         },
         error: (error) => {
-          this.toastrService.danger('An error occured', 'Error', {
-            duration: 5000,
-            status: 'danger'
-          });
+          this.toastrService.danger(
+            this.translocoService.translate('rag.rag-settings.an_error_occurred'),
+            this.translocoService.translate('rag.rag-settings.error_title'),
+            {
+              duration: 5000,
+              status: 'danger'
+            }
+          );
 
           if (error.error) {
             this.nbWindowService.open(DebugViewerWindowComponent, {
-              title: 'An error occured',
+              title: this.translocoService.translate('rag.rag-settings.an_error_occurred'),
               context: {
                 debug: error.error
               }
@@ -591,7 +585,11 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
 
     saveAs(jsonBlob, exportFileName);
 
-    this.toastrService.show(`Rag settings dump provided`, 'Rag settings dump', { duration: 3000, status: 'success' });
+    this.toastrService.show(
+      this.translocoService.translate('rag.rag-settings.dump_provided'),
+      this.translocoService.translate('rag.rag-settings.dump_title'),
+      { duration: 3000, status: 'success' }
+    );
   }
 
   importModalRef: NbDialogRef<any>;
@@ -637,8 +635,8 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
 
         if (!hasCompatibleProvider) {
           this.toastrService.show(
-            `The file supplied does not reference a compatible provider. Please check the file.`,
-            'Rag settings import fails',
+            this.translocoService.translate('rag.rag-settings.incompatible_provider_error'),
+            this.translocoService.translate('rag.rag-settings.import_failed_title'),
             {
               duration: 6000,
               status: 'danger'
@@ -656,13 +654,13 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
   }
 
   confirmSettingsDeletion(): void {
-    const confirmAction = 'Delete';
-    const cancelAction = 'Cancel';
+    const confirmAction = this.translocoService.translate('rag.rag-settings.delete_action');
+    const cancelAction = this.translocoService.translate('rag.rag-settings.cancel_action');
 
     const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
       context: {
-        title: `Delete Rag settings`,
-        subtitle: `Are you sure you want to delete the currently saved Rag settings?`,
+        title: this.translocoService.translate('rag.rag-settings.delete_settings_title'),
+        subtitle: this.translocoService.translate('rag.rag-settings.delete_confirmation_message'),
         modalStatus: 'danger',
         actions: [
           { actionName: cancelAction, buttonStatus: 'basic' },
@@ -683,10 +681,14 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
       delete this.settingsBackup;
       this.form.reset();
       this.form.markAsPristine();
-      this.toastrService.success(`Rag settings succesfully deleted`, 'Success', {
-        duration: 5000,
-        status: 'success'
-      });
+      this.toastrService.success(
+        this.translocoService.translate('rag.rag-settings.settings_deleted_success'),
+        this.translocoService.translate('rag.rag-settings.success_title'),
+        {
+          duration: 5000,
+          status: 'success'
+        }
+      );
     });
   }
 
@@ -698,11 +700,20 @@ export class RagSettingsComponent implements OnInit, CanComponentDeactivate, Dir
     const dialogRef = this.nbDialogService.open(ChoiceDialogComponent, {
       closeOnBackdropClick: false,
       context: {
-        title: 'Unsaved changes',
-        subtitle: 'You have unsaved changes. What would you like to do?',
+        title: this.translocoService.translate('rag.rag-settings.unsaved_changes_title'),
+        subtitle: this.translocoService.translate('rag.rag-settings.unsaved_changes_message'),
         actions: [
-          { actionName: 'Stay on page', buttonStatus: 'basic', ghost: true, returnValue: false },
-          { actionName: 'Leave without saving', buttonStatus: 'danger', returnValue: true }
+          {
+            actionName: this.translocoService.translate('rag.rag-settings.stay_on_page'),
+            buttonStatus: 'basic',
+            ghost: true,
+            returnValue: false
+          },
+          {
+            actionName: this.translocoService.translate('rag.rag-settings.leave_without_saving'),
+            buttonStatus: 'danger',
+            returnValue: true
+          }
         ],
         modalStatus: 'danger'
       }

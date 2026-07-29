@@ -1,6 +1,6 @@
 <tock-sticky-menu [offset]="50">
   <div class="d-flex flex-wrap align-items-center">
-    <h1 class="flex-grow-1 mb-0">Rag prompt context</h1>
+    <h1 class="flex-grow-1 mb-0">{{ 'rag.prompt-context.title' | transloco }}</h1>
 
     <section class="grid-actions">
       <button
@@ -8,7 +8,7 @@
         nbButton
         ghost
         shape="round"
-        nbTooltip="Export prompt context settings dump"
+        [nbTooltip]="'rag.prompt-context.export_tooltip' | transloco"
         (click)="exportSettings()"
       >
         <nb-icon icon="download"></nb-icon>
@@ -17,7 +17,7 @@
         nbButton
         ghost
         shape="round"
-        nbTooltip="Import prompt context settings dump"
+        [nbTooltip]="'rag.prompt-context.import_tooltip' | transloco"
         (click)="importSettings()"
       >
         <nb-icon icon="upload"></nb-icon>
@@ -28,32 +28,36 @@
           nbButton
           ghost
           status="basic"
-          nbTooltip="Discard changes and revert to last saved state"
+          [nbTooltip]="'rag.prompt-context.discard_changes_tooltip' | transloco"
           [disabled]="isSaving"
           (click)="cancel()"
         >
           <nb-icon icon="x-circle"></nb-icon>
-          CANCEL
+          {{ 'rag.prompt-context.cancel_button' | transloco }}
         </button>
 
         <button
           nbButton
           status="primary"
-          [nbTooltip]="isValid ? 'Save settings' : 'Some lexicon groups have fewer than 2 terms'"
+          [nbTooltip]="
+            isValid
+              ? ('rag.prompt-context.save_settings_tooltip' | transloco)
+              : ('rag.prompt-context.save_settings_disabled_tooltip' | transloco)
+          "
           [nbSpinner]="isSaving"
           [disabled]="isSaving || !isValid"
           (click)="save()"
         >
           <nb-icon icon="floppy"></nb-icon>
-          SAVE CHANGES
+          {{ 'rag.prompt-context.save_changes_button' | transloco }}
         </button>
       </ng-container>
     </section>
   </div>
 
-  <small class="sticky-menu-scrolled-hidden"
-    >These elements are injected dynamically into the RAG chain prompt. Changes take effect on new queries after saving.</small
-  >
+  <small class="sticky-menu-scrolled-hidden">
+    {{ 'rag.prompt-context.sticky_info' | transloco }}
+  </small>
 </tock-sticky-menu>
 
 <div class="mt-3">
@@ -71,8 +75,8 @@
       </div>
 
       <div class="d-flex flex-column flex-grow-1 font-size-medium text-muted">
-        <span class="font-weight-bold">Covered Topics</span>
-        <span class="font-size-small">Topics used to categorize conversations </span>
+        <span class="font-weight-bold">{{ 'rag.prompt-context.covered_topics_title' | transloco }}</span>
+        <span class="font-size-small">{{ 'rag.prompt-context.covered_topics_subtitle' | transloco }}</span>
       </div>
       <nb-badge
         [text]="coveredTopics.length.toString()"
@@ -88,9 +92,9 @@
 
     <nb-card-body *ngIf="sections.covered">
       <p class="font-size-small text-muted">
-        See RAG Topics classification in the <a routerLink="/business-metrics/board">Custom Metrics</a> view. <br />
-        Note that questions not covered by these topics will still be processed, unless they match an excluded topic below or are
-        specifically handled at the prompt level.
+        {{ 'rag.prompt-context.covered_topics_info_part1' | transloco }}
+        <a routerLink="/business-metrics/board">{{ 'rag.prompt-context.custom_metrics' | transloco }}</a>
+        {{ 'rag.prompt-context.covered_topics_info_part2' | transloco }}
       </p>
       <div>
         <nb-tag-list
@@ -103,7 +107,7 @@
             [text]="topic"
             [status]="isTopicRemovable(topic) ? 'success' : 'primary'"
             [removable]="isTopicRemovable(topic)"
-            nbTooltip="This topic is mandatory"
+            [nbTooltip]="'rag.prompt-context.mandatory_topic_tooltip' | transloco"
             [nbTooltipDisabled]="isTopicRemovable(topic)"
           ></nb-tag>
         </nb-tag-list>
@@ -116,7 +120,7 @@
             nbInput
             type="text"
             [maxLength]="coveredTopicMaxLength"
-            placeholder="Add a covered topic…"
+            [placeholder]="'rag.prompt-context.add_covered_topic_placeholder' | transloco"
             #coveredInput
             fullWidth
             (keyup.enter)="addTag('covered', coveredInput)"
@@ -126,11 +130,11 @@
             nbButton
             outline
             status="primary"
-            nbTooltip="Add the topic"
+            [nbTooltip]="'rag.prompt-context.add_topic_tooltip' | transloco"
             [disabled]="!coveredInput.value"
             (click)="addTag('covered', coveredInput)"
           >
-            <nb-icon icon="plus"></nb-icon> Add
+            <nb-icon icon="plus"></nb-icon> {{ 'rag.prompt-context.add_topic_tooltip' | transloco | titlecase }}
           </button>
         </div>
 
@@ -153,9 +157,7 @@
       >
         <div class="flex-grow-1">
           <div class="font-weight-bold text-muted">
-            There {{ suggestedTopics.length === 1 ? 'is' : 'are' }} {{ suggestedTopics.length }} suggested topic{{
-              suggestedTopics.length !== 1 ? 's' : ''
-            }}
+            {{ 'rag.prompt-context.suggested_topics_text' | transloco: { count: suggestedTopics.length } }}
           </div>
         </div>
         <nb-icon
@@ -168,9 +170,7 @@
         *ngIf="showSuggestedTopics"
         class="font-size-small text-muted lineHeight-1 m-0"
       >
-        The following topic{{ suggestedTopics.length !== 1 ? 's' : '' }} {{ suggestedTopics.length === 1 ? 'was' : 'were' }} suggested by
-        the RAG chain when it couldn't categorize a conversation based on the covered topics list at the moment of execution. Review and add
-        {{ suggestedTopics.length === 1 ? 'it' : 'them' }} to your Covered Topics if relevant to improve future categorization.
+        {{ 'rag.prompt-context.suggested_topics_info' | transloco: { count: suggestedTopics.length } }}
       </p>
 
       <div
@@ -180,7 +180,7 @@
         <div
           class="tag tag-small tag-rounded tag-warning tag-hover pointer"
           *ngFor="let topic of suggestedTopics"
-          nbTooltip="Click to add this suggested topic to the list of covered topics"
+          [nbTooltip]="'rag.prompt-context.suggested_topic_tooltip' | transloco"
           (click)="addSuggestedTag(topic); $event.stopPropagation()"
         >
           {{ topic }}
@@ -203,8 +203,8 @@
       </div>
 
       <div class="d-flex flex-column flex-grow-1 font-size-medium text-muted">
-        <span class="font-weight-bold">Excluded topics</span>
-        <span class="font-size-small">Subjects outside the bot's scope of competence</span>
+        <span class="font-weight-bold">{{ 'rag.prompt-context.excluded_topics_title' | transloco }}</span>
+        <span class="font-size-small">{{ 'rag.prompt-context.excluded_topics_subtitle' | transloco }}</span>
       </div>
 
       <nb-badge
@@ -221,7 +221,7 @@
 
     <nb-card-body *ngIf="sections.excluded">
       <p class="font-size-small text-muted">
-        Topics listed here are explicitly mentioned in the prompt as out of scope. The bot will decline questions on these subjects.
+        {{ 'rag.prompt-context.excluded_topics_info' | transloco }}
       </p>
       <div>
         <nb-tag-list
@@ -241,7 +241,7 @@
           <input
             nbInput
             type="text"
-            placeholder="Add an excluded topic…"
+            [placeholder]="'rag.prompt-context.add_excluded_topic_placeholder' | transloco"
             #excludedInput
             fullWidth
             (keyup.enter)="addTag('excluded', excludedInput)"
@@ -250,11 +250,11 @@
             nbButton
             outline
             status="primary"
-            nbTooltip="Add the excluded topic"
+            [nbTooltip]="'rag.prompt-context.add_excluded_topic_tooltip' | transloco"
             [disabled]="!excludedInput.value"
             (click)="addTag('excluded', excludedInput)"
           >
-            <nb-icon icon="plus"></nb-icon> Add
+            <nb-icon icon="plus"></nb-icon> {{ 'rag.prompt-context.add_excluded_topic_tooltip' | transloco | titlecase }}
           </button>
         </div>
 
@@ -281,8 +281,8 @@
       </div>
 
       <div class="d-flex flex-column flex-grow-1 font-size-medium text-muted">
-        <span class="font-weight-bold">Business lexicon</span>
-        <span class="font-size-small">Synonym groups and acronym expansions to standardize user queries before search</span>
+        <span class="font-weight-bold">{{ 'rag.prompt-context.business_lexicon_title' | transloco }}</span>
+        <span class="font-size-small">{{ 'rag.prompt-context.business_lexicon_subtitle' | transloco }}</span>
       </div>
 
       <nb-badge
@@ -299,9 +299,7 @@
 
     <nb-card-body *ngIf="sections.lexicon">
       <p class="font-size-small text-muted">
-        When a user asks a question, the bot expands it behind the scenes using these groups — replacing or enriching terms with their
-        synonyms and acronym equivalents before searching. This helps surface relevant documents even when the user's wording doesn't
-        exactly match what's written in the knowledge base.
+        {{ 'rag.prompt-context.business_lexicon_info' | transloco }}
       </p>
 
       <div
@@ -317,21 +315,21 @@
             nbInput
             fullWidth
             fieldSize="small"
-            placeholder="Search term…"
+            [placeholder]="'rag.prompt-context.search_placeholder' | transloco"
             [(ngModel)]="lexiconSearch"
           />
         </nb-form-field>
         <span class="font-size-small text-nowrap text-muted">
-          {{ filteredLexiconGroups.length }}
+          {{ 'rag.prompt-context.groups_count' | transloco: { count: filteredLexiconGroups.length } }}
           <ng-container *ngIf="lexiconSearch">/ {{ lexiconGroups.length }}</ng-container>
-          group{{ lexiconGroups.length !== 1 ? 's' : '' }}
+          {{ 'rag.prompt-context.groups_count' | transloco: { count: 1 } | slice: 0:1 }}
         </span>
       </div>
 
       <tock-no-data-found
         *ngIf="lexiconSearch && !filteredLexiconGroups.length"
-        title="No matching groups"
-        message="Try a different search term."
+        [title]="'rag.prompt-context.no_matching_groups' | transloco"
+        [message]="'rag.prompt-context.try_different_search' | transloco"
       ></tock-no-data-found>
 
       <div class="pcs-lex-list">
@@ -353,7 +351,7 @@
             <span
               *ngIf="!getLexLabel(group)"
               class="flex-grow-1 font-size-small text-muted font-italic"
-              >Add terms to name this group…</span
+              >{{ 'rag.prompt-context.new_synonym_group_button' | transloco }}</span
             >
             <button
               nbButton
@@ -361,7 +359,7 @@
               shape="round"
               status="danger"
               size="tiny"
-              nbTooltip="Delete this group"
+              [nbTooltip]="'rag.prompt-context.delete_group_tooltip' | transloco"
               (click)="deleteLexGroup(group.id)"
             >
               <nb-icon icon="trash"></nb-icon>
@@ -387,7 +385,7 @@
               class="d-flex gap-05 align-items-center font-size-small text-danger mt-1"
             >
               <nb-icon icon="exclamation-triangle"></nb-icon>
-              A synonym group must contain at least 2 terms.
+              {{ 'rag.prompt-context.min_terms_warning' | transloco }}
             </div>
 
             <div class="d-flex align-items-center gap-1 mt-3">
@@ -395,7 +393,7 @@
                 nbInput
                 type="text"
                 fieldSize="small"
-                placeholder="Add an acronym or synonym…"
+                [placeholder]="'rag.prompt-context.add_term_placeholder' | transloco"
                 #addTermInput
                 fullWidth
                 (keyup.enter)="addTerm(group.id, addTermInput)"
@@ -405,11 +403,11 @@
                 outline
                 status="primary"
                 size="small"
-                nbTooltip="Add the term"
+                [nbTooltip]="'rag.prompt-context.add_term_tooltip' | transloco"
                 [disabled]="!addTermInput.value"
                 (click)="addTerm(group.id, addTermInput)"
               >
-                <nb-icon icon="plus"></nb-icon> Add
+                <nb-icon icon="plus"></nb-icon> {{ 'rag.prompt-context.add_term_tooltip' | transloco | titlecase }}
               </button>
             </div>
           </nb-card-body>
@@ -427,7 +425,7 @@
           icon="plus"
           class="mr-2"
         ></nb-icon>
-        New synonym group
+        {{ 'rag.prompt-context.new_synonym_group_button' | transloco }}
       </button>
     </nb-card-body>
   </nb-card>
@@ -436,12 +434,12 @@
 <ng-template #importModal>
   <nb-card>
     <nb-card-header class="d-flex justify-content-between align-items-start gap-1">
-      Import prompt context settings dump
+      {{ 'rag.prompt-context.import_modal_title' | transloco }}
       <button
         nbButton
         ghost
         shape="round"
-        nbTooltip="Cancel"
+        [nbTooltip]="'rag.prompt-context.close_tooltip' | transloco"
         (click)="closeImportModal()"
       >
         <nb-icon icon="x-lg"></nb-icon>
@@ -454,7 +452,7 @@
         (submit)="submitImportSettings()"
       >
         <tock-form-control
-          label="Rag prompt context settings dump file"
+          [label]="'rag.prompt-context.import_file_label' | transloco"
           name="importFile"
           [required]="true"
           [controls]="fileSource"
@@ -479,7 +477,7 @@
         size="small"
         (click)="closeImportModal()"
       >
-        Cancel
+        {{ 'rag.prompt-context.cancel_button' | transloco }}
       </button>
       <button
         type="button"
@@ -488,7 +486,7 @@
         size="small"
         (click)="submitImportSettings()"
       >
-        Import
+        {{ 'rag.prompt-context.import_button' | transloco }}
       </button>
     </nb-card-footer>
   </nb-card>
