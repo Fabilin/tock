@@ -47,6 +47,7 @@ import ai.tock.bot.engine.user.PlayerId
 import ai.tock.bot.engine.user.PlayerType.bot
 import ai.tock.bot.engine.user.PlayerType.user
 import ai.tock.bot.engine.user.UserPreferences
+import ai.tock.bot.engine.user.UserState
 import ai.tock.bot.orchestration.bot.secondary.OrchestrationCallback
 import ai.tock.bot.orchestration.bot.secondary.RestOrchestrationCallback
 import ai.tock.bot.orchestration.connector.OrchestrationConnector
@@ -424,6 +425,29 @@ class WebConnector internal constructor(
         return when (callback) {
             is WebConnectorCallback -> UserPreferences().apply { locale = callback.locale }
             else -> UserPreferences()
+        }
+    }
+
+    override fun shouldRefreshProfile(
+        profile: UserPreferences,
+        state: UserState,
+        connectorData: ConnectorData,
+    ): Boolean {
+        (connectorData.callback as? WebConnectorCallback)?.let {
+            if (it.locale != profile.locale) {
+                return true
+            }
+        }
+        return super.shouldRefreshProfile(profile, state, connectorData)
+    }
+
+    override fun refreshProfile(
+        callback: ConnectorCallback,
+        userId: PlayerId,
+    ): UserPreferences? {
+        return when (callback) {
+            is WebConnectorCallback -> UserPreferences(locale = callback.locale)
+            else -> super.refreshProfile(callback, userId)
         }
     }
 

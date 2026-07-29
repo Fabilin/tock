@@ -328,7 +328,7 @@ internal class Bot(botDefinitionBase: BotDefinition, val configuration: BotAppli
                         userPreferences.refreshWith(pref)
                     }
                 }
-            } else if (!userState.profileRefreshed) {
+            } else if (connector.connector.shouldRefreshProfile(userPreferences, userState, connectorData)) {
                 userState.profileRefreshed = true
                 val pref = connector.refreshProfile(connectorData, userTimeline.playerId)
                 if (pref != null) {
