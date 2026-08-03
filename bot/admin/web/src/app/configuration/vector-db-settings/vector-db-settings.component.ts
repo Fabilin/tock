@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { StateService } from '../../core-nlp/state.service';
 import { RestService } from '../../core-nlp/rest/rest.service';
 import { NbDialogService, NbToastrService, NbWindowService } from '@nebular/theme';
@@ -27,7 +27,7 @@ interface VectorDbSettingsForm {
   templateUrl: './vector-db-settings.component.html',
   styleUrls: ['./vector-db-settings.component.scss']
 })
-export class VectorDbSettingsComponent implements OnInit {
+export class VectorDbSettingsComponent implements OnInit, OnDestroy {
   destroy$: Subject<unknown> = new Subject();
 
   loading: boolean = false;

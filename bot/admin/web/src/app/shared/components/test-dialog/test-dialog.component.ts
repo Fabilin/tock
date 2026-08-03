@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { Observable, Subject, of, take, takeUntil } from 'rxjs';
 import { PaginatedQuery, randomString } from '../../../model/commons';
 import { StateService } from '../../../core-nlp/state.service';
@@ -91,6 +91,8 @@ export class TestDialogComponent implements OnInit, OnDestroy {
 
   @ViewChild('textareaElement') textareaElementRef!: ElementRef<HTMLTextAreaElement>;
 
+  private testDialogService = inject(TestDialogService);
+
   constructor(
     private botConfiguration: BotConfigurationService,
     public state: StateService,
@@ -99,7 +101,6 @@ export class TestDialogComponent implements OnInit, OnDestroy {
     private shared: BotSharedService,
     private nbDialogService: NbDialogService,
     private rest: RestService,
-    private testDialogService: TestDialogService,
     protected windowRef: NbWindowRef
   ) {}
 

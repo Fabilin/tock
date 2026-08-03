@@ -18,6 +18,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RagExcludedComponent } from './rag-excluded.component';
 import { SentenceTrainingMode } from '../../shared/components/sentence-training/models';
+import { TestSharedModule } from '../../shared/test-shared.module';
 
 describe('RagExcludedComponent', () => {
   let component: RagExcludedComponent;
@@ -25,7 +26,8 @@ describe('RagExcludedComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [RagExcludedComponent]
+      declarations: [RagExcludedComponent],
+      imports: [TestSharedModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RagExcludedComponent);

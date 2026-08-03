@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output } from '@angular/core';
 import { AnalyticsService } from '../../analytics.service';
 import { StateService } from '../../../core-nlp/state.service';
 import { DialogService } from '../../../core-nlp/dialog.service';
@@ -25,7 +25,7 @@ import { Subject, take } from 'rxjs';
   templateUrl: './activate-satisfaction.component.html',
   styleUrls: ['./activate-satisfaction.component.css']
 })
-export class ActivateSatisfactionComponent {
+export class ActivateSatisfactionComponent implements OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();
 
   @Output() enableSatisfaction = new EventEmitter<boolean>();

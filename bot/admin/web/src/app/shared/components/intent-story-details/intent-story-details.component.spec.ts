@@ -17,6 +17,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { IntentStoryDetailsComponent } from './intent-story-details.component';
+import { TestSharedModule } from '../../test-shared.module';
+import { getNbDialogRefMock, getNbTestProviders } from '../../test-shared/nb-mocks';
+import { NbDialogRef } from '@nebular/theme';
+import { StateService } from '../../../core-nlp/state.service';
+import { StateServiceMock } from '../../test-shared/state-service.mock';
 
 describe('IntentStoryDetailsComponent', () => {
   let component: IntentStoryDetailsComponent;
@@ -24,9 +29,13 @@ describe('IntentStoryDetailsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ IntentStoryDetailsComponent ]
-    })
-    .compileComponents();
+      declarations: [IntentStoryDetailsComponent],
+      imports: [TestSharedModule],
+      providers: [
+        { provide: NbDialogRef, useValue: getNbDialogRefMock() },
+        { provide: StateService, useClass: StateServiceMock }
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(IntentStoryDetailsComponent);
     component = fixture.componentInstance;

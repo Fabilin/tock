@@ -20,6 +20,7 @@ import { By } from '@angular/platform-browser';
 
 import { ErrorHelperComponent } from '../error-helper/error-helper.component';
 import { FormControlComponent } from './form-control.component';
+import { TestSharedModule } from '../../test-shared.module';
 
 @Component({
   template: `<tock-form-control><small>Hello world</small></tock-form-control>`
@@ -32,7 +33,8 @@ describe('FormControlComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FormControlComponent, TestComponent, ErrorHelperComponent]
+      declarations: [FormControlComponent, TestComponent, ErrorHelperComponent],
+      imports: [TestSharedModule]
     }).compileComponents();
   });
 

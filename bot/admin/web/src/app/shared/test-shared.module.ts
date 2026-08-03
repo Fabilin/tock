@@ -1,25 +1,40 @@
-/*
- * Copyright (C) 2017/2025 SNCF Connect & Tech
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import { CommonModule } from '@angular/common';
+import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import { NbThemeModule } from '@nebular/theme';
+import {
+  NbButtonModule,
+  NbCardModule,
+  NbCheckboxModule,
+  NbDatepickerModule,
+  NbDialogModule,
+  NbFormFieldModule,
+  NbIconLibraries,
+  NbIconModule,
+  NbInputModule,
+  NbRadioModule,
+  NbSelectModule,
+  NbSpinnerModule,
+  NbThemeModule,
+  NbToastrModule,
+  NbTooltipModule,
+  NbWindowModule
+} from '@nebular/theme';
+import { TranslocoTestingModule, TranslocoTestingOptions } from '@jsverse/transloco';
+import { DialogService } from '../core-nlp/dialog.service';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RestService } from '../core-nlp/rest/rest.service';
+import { BotService } from '../bot/bot-service';
+
+export function getTranslocoTestingModule(options: TranslocoTestingOptions = {}) {
+  return TranslocoTestingModule.forRoot({
+    langs: { en: {}, fr: {} },
+    translocoConfig: { availableLangs: ['en', 'fr'], defaultLang: 'en' },
+    preloadLangs: true,
+    ...options
+  });
+}
 
 @NgModule({
   imports: [
@@ -28,9 +43,49 @@ import { NbThemeModule } from '@nebular/theme';
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot([]),
-
-    NbThemeModule.forRoot({ name: 'default' })
+    NbThemeModule.forRoot({ name: 'default' }),
+    getTranslocoTestingModule(),
+    NbCardModule,
+    NbButtonModule,
+    NbIconModule,
+    NbInputModule,
+    NbSelectModule,
+    NbFormFieldModule,
+    NbCheckboxModule,
+    NbTooltipModule,
+    NbSpinnerModule,
+    NbToastrModule.forRoot(),
+    NbWindowModule.forRoot(),
+    NbDialogModule.forRoot(),
+    HttpClientTestingModule,
+    NbDatepickerModule.forRoot(),
+    NbRadioModule
   ],
-  exports: [CommonModule, FormsModule, ReactiveFormsModule]
+  exports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslocoTestingModule,
+    NbCardModule,
+    NbButtonModule,
+    NbIconModule,
+    NbInputModule,
+    NbSelectModule,
+    NbFormFieldModule,
+    NbCheckboxModule,
+    NbTooltipModule,
+    NbSpinnerModule,
+    NbToastrModule,
+    NbWindowModule,
+    NbDialogModule,
+    NbDatepickerModule,
+    NbRadioModule
+  ],
+  providers: [DialogService, RestService, BotService, { provide: APP_BASE_HREF, useValue: '/' }]
 })
-export class TestSharedModule {}
+export class TestSharedModule {
+  constructor(private iconLibraries: NbIconLibraries) {
+    this.iconLibraries.registerFontPack('bootstrap-icons', { iconClassPrefix: 'bi' });
+    this.iconLibraries.setDefaultPack('bootstrap-icons');
+  }
+}

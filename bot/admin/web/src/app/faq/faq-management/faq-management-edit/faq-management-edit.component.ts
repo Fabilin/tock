@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { NbDialogService, NbPopoverDirective, NbTabComponent, NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 import { Observable, Subject, forkJoin, of } from 'rxjs';
@@ -72,7 +72,7 @@ interface FaqEditForm {
   templateUrl: './faq-management-edit.component.html',
   styleUrls: ['./faq-management-edit.component.scss']
 })
-export class FaqManagementEditComponent implements OnChanges, OnInit {
+export class FaqManagementEditComponent implements OnChanges, OnInit, OnDestroy {
   destroy$: Subject<unknown> = new Subject();
 
   faqTabs: typeof FaqTabs = FaqTabs;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { NbThemeService } from '@nebular/theme';
@@ -40,7 +40,7 @@ import { MarkupFormats, htmlToMarkdown, markdownToHtml } from '../../utils/marku
     }
   ]
 })
-export class WysiwygEditorComponent implements OnInit, OnChanges, ControlValueAccessor {
+export class WysiwygEditorComponent implements OnInit, OnChanges, OnDestroy, ControlValueAccessor {
   destroy$: Subject<unknown> = new Subject();
 
   joditInstance: Jodit;
