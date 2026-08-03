@@ -14,13 +14,8 @@
     "i18n:find-missing": "transloco-keys-manager find"
   },
   "private": true,
-  "overrides": {
-    "@nebular/theme": {
-      "@angular/cdk": "<17.1.0"
-    }
-  },
   "dependencies": {
-    "@angular-slider/ngx-slider": "^17.0.2",
+    "@angular-slider/ngx-slider": "^18.0.0",
     "@angular/animations": "^18.2.14",
     "@angular/cdk": "18.2.14",
     "@angular/common": "^18.2.14",
@@ -33,9 +28,9 @@
     "@angular/router": "^18.2.14",
     "@jsverse/transloco": "^8.3.0",
     "@jsverse/transloco-messageformat": "^8.3.0",
-    "@nebular/moment": "^13.0.0",
-    "@nebular/theme": "13.0.0",
-    "ang-jsoneditor": "^3.1.1",
+    "@nebular/moment": "^14.0.0",
+    "@nebular/theme": "^14.0.2",
+    "ang-jsoneditor": "^6.0.0",
     "bootstrap": "^4.4.1",
     "bootstrap-icons": "^1.11.3",
     "dompurify": "^3.2.4",
@@ -50,9 +45,9 @@
     "linkifyjs": "^4.1.1",
     "marked": "^14.1.4",
     "marked-highlight": "^2.2.1",
-    "ng2-file-upload": "^6.0.0",
-    "ngx-echarts": "^16.2.0",
-    "ngx-infinite-scroll": "^17.0.1",
+    "ng2-file-upload": "^7.0.1",
+    "ngx-echarts": "^18.0.0",
+    "ngx-infinite-scroll": "^18.0.0",
     "ngx-moment": "^6.0.2",
     "papaparse": "^5.4.1",
     "pdfmake": "^0.3.3",
@@ -89,7 +84,7 @@
     "@types/jasmine": "~4.3.0",
     "@types/jasminewd2": "^2.0.8",
     "@types/katex": "^0.16.7",
-    "@types/node": "^12.11.1",
+    "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
     "eslint": "^8.28.0",
