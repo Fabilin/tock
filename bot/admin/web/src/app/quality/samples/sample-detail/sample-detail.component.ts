@@ -15,9 +15,10 @@ import { BotConfigurationService } from '../../../core/bot-configuration.service
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
-  selector: 'tock-sample-detail',
-  templateUrl: './sample-detail.component.html',
-  styleUrl: './sample-detail.component.scss'
+    selector: 'tock-sample-detail',
+    templateUrl: './sample-detail.component.html',
+    styleUrl: './sample-detail.component.scss',
+    standalone: false
 })
 export class SampleDetailComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

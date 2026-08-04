@@ -22,12 +22,13 @@ import { AutofocusDirective } from './autofocus.directive';
 import { TestSharedModule } from '../../test-shared.module';
 
 @Component({
-  template: `<div>
+    template: `<div>
     <input
       id="focusElement"
       tockAutofocusElement
     />
-  </div>`
+  </div>`,
+    standalone: false
 })
 class TestComponent {}
 

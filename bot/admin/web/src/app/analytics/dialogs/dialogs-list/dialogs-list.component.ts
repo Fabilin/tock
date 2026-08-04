@@ -29,9 +29,10 @@ import { DialogListFilters } from './dialogs-list-filters/dialogs-list-filters.c
 import { SortOrder } from '../../../shared/model/misc';
 
 @Component({
-  selector: 'tock-dialogs-list',
-  templateUrl: './dialogs-list.component.html',
-  styleUrls: ['./dialogs-list.component.scss']
+    selector: 'tock-dialogs-list',
+    templateUrl: './dialogs-list.component.html',
+    styleUrls: ['./dialogs-list.component.scss'],
+    standalone: false
 })
 export class DialogsListComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

@@ -23,9 +23,10 @@ interface IntentsLogsFilterForm {
 }
 
 @Component({
-  selector: 'tock-intents-logs',
-  templateUrl: './intents-logs.component.html',
-  styleUrls: ['./intents-logs.component.scss']
+    selector: 'tock-intents-logs',
+    templateUrl: './intents-logs.component.html',
+    styleUrls: ['./intents-logs.component.scss'],
+    standalone: false
 })
 export class IntentsLogsComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

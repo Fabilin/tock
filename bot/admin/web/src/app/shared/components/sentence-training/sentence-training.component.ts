@@ -43,10 +43,11 @@ import { TranslocoService } from '@jsverse/transloco';
 export type SentenceExtended = Sentence & { _showDialog?: boolean; _showStatsDetails?: boolean; _intentBeforeClassification?: string };
 
 @Component({
-  selector: 'tock-sentence-training',
-  templateUrl: './sentence-training.component.html',
-  styleUrls: ['./sentence-training.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tock-sentence-training',
+    templateUrl: './sentence-training.component.html',
+    styleUrls: ['./sentence-training.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SentenceTrainingComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

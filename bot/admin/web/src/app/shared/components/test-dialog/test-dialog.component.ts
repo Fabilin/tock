@@ -36,9 +36,10 @@ import { currentConfigurationSelection } from '../bot-configuration-selector/bot
 import { TextareaAutocompleteDirective } from '../../directives';
 
 @Component({
-  selector: 'tock-test-dialog',
-  templateUrl: './test-dialog.component.html',
-  styleUrl: './test-dialog.component.scss'
+    selector: 'tock-test-dialog',
+    templateUrl: './test-dialog.component.html',
+    styleUrl: './test-dialog.component.scss',
+    standalone: false
 })
 export class TestDialogComponent implements OnInit, OnDestroy {
   destroy = new Subject();

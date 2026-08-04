@@ -23,9 +23,10 @@ interface VectorDbSettingsForm {
 }
 
 @Component({
-  selector: 'tock-vector-db-settings',
-  templateUrl: './vector-db-settings.component.html',
-  styleUrls: ['./vector-db-settings.component.scss']
+    selector: 'tock-vector-db-settings',
+    templateUrl: './vector-db-settings.component.html',
+    styleUrls: ['./vector-db-settings.component.scss'],
+    standalone: false
 })
 export class VectorDbSettingsComponent implements OnInit, OnDestroy {
   destroy$: Subject<unknown> = new Subject();

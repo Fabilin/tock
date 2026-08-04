@@ -20,9 +20,9 @@ import { takeWhile } from 'rxjs/operators';
 import { AuthService } from '../../../core-nlp/auth/auth.service';
 
 @Component({
-  selector: 'tock-one-column-layout',
-  styleUrls: ['./one-column.layout.scss'],
-  template: `
+    selector: 'tock-one-column-layout',
+    styleUrls: ['./one-column.layout.scss'],
+    template: `
     <nb-layout>
       <nb-layout-header
         fixed
@@ -52,7 +52,8 @@ import { AuthService } from '../../../core-nlp/auth/auth.service';
         <tock-footer></tock-footer>
       </nb-layout-footer>
     </nb-layout>
-  `
+  `,
+    standalone: false
 })
 export class OneColumnLayoutComponent implements OnDestroy {
   private alive = true;

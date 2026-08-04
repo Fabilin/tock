@@ -29,9 +29,10 @@ import { DOCUMENT } from '@angular/common';
 import { scrollToPageTop } from '../../shared/utils';
 
 @Component({
-  selector: 'tock-i18n',
-  templateUrl: './i18n.component.html',
-  styleUrls: ['./i18n.component.css']
+    selector: 'tock-i18n',
+    templateUrl: './i18n.component.html',
+    styleUrls: ['./i18n.component.css'],
+    standalone: false
 })
 export class I18nComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

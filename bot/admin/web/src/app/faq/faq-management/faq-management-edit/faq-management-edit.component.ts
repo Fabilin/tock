@@ -68,9 +68,10 @@ interface FaqEditForm {
 }
 
 @Component({
-  selector: 'tock-faq-management-edit',
-  templateUrl: './faq-management-edit.component.html',
-  styleUrls: ['./faq-management-edit.component.scss']
+    selector: 'tock-faq-management-edit',
+    templateUrl: './faq-management-edit.component.html',
+    styleUrls: ['./faq-management-edit.component.scss'],
+    standalone: false
 })
 export class FaqManagementEditComponent implements OnChanges, OnInit, OnDestroy {
   destroy$: Subject<unknown> = new Subject();

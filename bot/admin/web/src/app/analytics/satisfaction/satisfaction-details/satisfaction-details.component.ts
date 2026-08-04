@@ -20,9 +20,10 @@ import { DialogsListComponent } from '../../dialogs/dialogs-list/dialogs-list.co
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'tock-satisfaction-details',
-  templateUrl: './satisfaction-details.component.html',
-  styleUrls: ['./satisfaction-details.component.scss']
+    selector: 'tock-satisfaction-details',
+    templateUrl: './satisfaction-details.component.html',
+    styleUrls: ['./satisfaction-details.component.scss'],
+    standalone: false
 })
 export class SatisfactionDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

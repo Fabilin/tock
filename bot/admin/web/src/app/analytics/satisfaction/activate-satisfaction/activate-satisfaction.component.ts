@@ -21,9 +21,10 @@ import { DialogService } from '../../../core-nlp/dialog.service';
 import { Subject, take } from 'rxjs';
 
 @Component({
-  selector: 'tock-activate-satisfaction',
-  templateUrl: './activate-satisfaction.component.html',
-  styleUrls: ['./activate-satisfaction.component.css']
+    selector: 'tock-activate-satisfaction',
+    templateUrl: './activate-satisfaction.component.html',
+    styleUrls: ['./activate-satisfaction.component.css'],
+    standalone: false
 })
 export class ActivateSatisfactionComponent implements OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();

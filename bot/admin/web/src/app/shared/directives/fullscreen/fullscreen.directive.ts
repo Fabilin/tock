@@ -20,8 +20,9 @@ import { NbThemeService, NbToastrService } from '@nebular/theme';
 import { Subscription } from 'rxjs';
 
 @Directive({
-  selector: '[tockFullscreen]',
-  exportAs: 'fullscreen'
+    selector: '[tockFullscreen]',
+    exportAs: 'fullscreen',
+    standalone: false
 })
 export class FullscreenDirective implements OnInit, OnDestroy {
   @Output() onFullscreenChange = new EventEmitter<boolean>();

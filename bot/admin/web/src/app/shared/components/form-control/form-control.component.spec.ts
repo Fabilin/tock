@@ -23,7 +23,8 @@ import { FormControlComponent } from './form-control.component';
 import { TestSharedModule } from '../../test-shared.module';
 
 @Component({
-  template: `<tock-form-control><small>Hello world</small></tock-form-control>`
+    template: `<tock-form-control><small>Hello world</small></tock-form-control>`,
+    standalone: false
 })
 export class TestComponent {}
 
