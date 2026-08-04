@@ -9,7 +9,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewChild
+  ViewChild,
+  DOCUMENT
 } from '@angular/core';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Observable, Subject, Subscription } from 'rxjs';
@@ -36,7 +37,7 @@ import { UserRole } from '../../../model/auth';
 import { saveAs } from 'file-saver-es';
 import { SentenceTrainingService } from './sentence-training.service';
 import { getSentenceId } from './commons/utils';
-import { DOCUMENT } from '@angular/common';
+
 import { getExportFileName, scrollToPageTop } from '../../utils';
 import { TranslocoService } from '@jsverse/transloco';
 

@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, DOCUMENT } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { saveAs } from 'file-saver-es';
 import { Observable, Subject, debounceTime, takeUntil } from 'rxjs';
@@ -11,7 +11,7 @@ import { Log, LogsQuery, PaginatedResult, Sentence } from '../../model/nlp';
 import { PaginatedQuery } from '../../model/commons';
 import { copyToClipboard, getExportFileName, scrollToPageTop } from '../../shared/utils';
 import { Pagination } from '../../shared/components';
-import { DOCUMENT } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import moment from 'moment';

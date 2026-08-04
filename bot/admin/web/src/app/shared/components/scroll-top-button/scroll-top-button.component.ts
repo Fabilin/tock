@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { DOCUMENT } from '@angular/common';
-import { Component, HostListener, Inject, Input, OnInit } from '@angular/core';
+
+import { Component, HostListener, Inject, Input, OnInit, DOCUMENT } from '@angular/core';
 import { scrollToPageTop } from '../../utils';
 
 @Component({

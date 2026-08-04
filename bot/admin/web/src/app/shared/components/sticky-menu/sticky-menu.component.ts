@@ -1,5 +1,5 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, HostListener, Inject, Input, OnInit, ViewChild } from '@angular/core';
+
+import { Component, HostListener, Inject, Input, OnInit, ViewChild, DOCUMENT } from '@angular/core';
 import { NbTooltipDirective } from '@nebular/theme';
 
 @Component({
