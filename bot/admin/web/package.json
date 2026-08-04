@@ -13,6 +13,9 @@
     "i18n:extract": "transloco-keys-manager extract",
     "i18n:find-missing": "transloco-keys-manager find"
   },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "private": true,
   "dependencies": {
     "@angular-slider/ngx-slider": "^19.0.0",
