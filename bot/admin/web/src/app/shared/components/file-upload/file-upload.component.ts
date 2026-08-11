@@ -19,17 +19,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'tock-file-upload',
-    templateUrl: './file-upload.component.html',
-    styleUrls: ['./file-upload.component.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FileUploadComponent),
-            multi: true
-        }
-    ],
-    standalone: false
+  selector: 'tock-file-upload',
+  templateUrl: './file-upload.component.html',
+  styleUrls: ['./file-upload.component.scss'],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FileUploadComponent),
+      multi: true
+    }
+  ],
+  standalone: false
 })
 export class FileUploadComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() autofocus: boolean = false;
@@ -76,7 +76,12 @@ export class FileUploadComponent implements OnInit, OnDestroy, ControlValueAcces
     this.subscriptions.unsubscribe();
   }
 
-  @HostListener('change', ['$event.target.files']) emitFiles(fileList: FileList) {
+  @HostListener('change', ['$event']) onFileInputChange(event: Event) {
+    const fileList = (event.target as HTMLInputElement).files;
+    if (fileList) this.emitFiles(fileList);
+  }
+
+  emitFiles(fileList: FileList) {
     const files = this.getFiles(fileList);
 
     this.files = files;

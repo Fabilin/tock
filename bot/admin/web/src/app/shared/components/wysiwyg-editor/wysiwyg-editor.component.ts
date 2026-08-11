@@ -29,17 +29,17 @@ import { customJoditControls } from './jodit-customization';
 import { MarkupFormats, htmlToMarkdown, markdownToHtml } from '../../utils/markup.utils';
 
 @Component({
-    selector: 'tock-wysiwyg-editor',
-    templateUrl: './wysiwyg-editor.component.html',
-    styleUrl: './wysiwyg-editor.component.scss',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => WysiwygEditorComponent),
-            multi: true
-        }
-    ],
-    standalone: false
+  selector: 'tock-wysiwyg-editor',
+  templateUrl: './wysiwyg-editor.component.html',
+  styleUrl: './wysiwyg-editor.component.scss',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => WysiwygEditorComponent),
+      multi: true
+    }
+  ],
+  standalone: false
 })
 export class WysiwygEditorComponent implements OnInit, OnChanges, OnDestroy, ControlValueAccessor {
   destroy$: Subject<unknown> = new Subject();
@@ -204,7 +204,7 @@ export class WysiwygEditorComponent implements OnInit, OnChanges, OnDestroy, Con
 
       disablePlugins: disabledPlugins,
 
-      enter: 'BR',
+      enter: 'br',
 
       createAttributes: {
         table: {

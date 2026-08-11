@@ -173,7 +173,7 @@
         @if (file.externalUrl) {
         {{ 'bot.documents-story.linkLabel' | transloco }}
         } @if (!file.externalUrl) {
-        <container-element>
+        <ng-container>
           @switch (file.suffix) { @case ('pdf') {
           <nb-icon icon="filetype-pdf"></nb-icon>
           } @case ('bmp') {
@@ -187,7 +187,7 @@
           } @case ('gif') {
           <nb-icon icon="filetype-gif"></nb-icon>
           } }
-        </container-element>
+        </ng-container>
         @switch (file.type) { @case (attachmentType.image) {
         <span>{{ 'bot.documents-story.imageLabel' | transloco }}</span>
         } @case (attachmentType.audio) {
