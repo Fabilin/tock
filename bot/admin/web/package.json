@@ -37,7 +37,7 @@
     "bootstrap": "^4.4.1",
     "bootstrap-icons": "^1.11.3",
     "dompurify": "^3.2.4",
-    "echarts": "^5.5.1",
+    "echarts": "^6.1.0",
     "file-saver-es": "^2.0.5",
     "highlight.js": "^11.11.1",
     "jodit": "^4.2.37",
@@ -102,5 +102,10 @@
     "prettier": "2.6.2",
     "ts-node": "3.2.2",
     "typescript": "5.9.3"
+  },
+  "overrides": {
+    "@hono/node-server": "^2.1.0",
+    "image-size": "^2.0.2",
+    "undici": "^7.16.0"
   }
 }
