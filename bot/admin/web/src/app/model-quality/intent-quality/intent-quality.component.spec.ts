@@ -33,7 +33,7 @@ describe('IntentQualityComponent', () => {
       imports: [TestSharedModule],
       providers: [
         { provide: StateService, useClass: StateServiceMock },
-        { provide: QualityService, useValue: { intentQA: () => of({ total: 0, data: [] }) } }
+        { provide: QualityService, useValue: { intentQA: () => of([]) } }
       ]
     }).compileComponents();
 

@@ -18,14 +18,14 @@ import { APP_BASE_HREF } from '@angular/common';
 import { Component, Inject, Input } from '@angular/core';
 
 @Component({
-    selector: 'tock-no-data-found',
-    templateUrl: './no-data-found.component.html',
-    styleUrls: ['./no-data-found.component.scss'],
-    standalone: false
+  selector: 'tock-no-data-found',
+  templateUrl: './no-data-found.component.html',
+  styleUrls: ['./no-data-found.component.scss'],
+  standalone: false
 })
 export class NoDataFoundComponent {
   @Input() title: string = 'No data found';
   @Input() message?: string;
 
-  @Inject(APP_BASE_HREF) BASE_HREF: string;
+  constructor(@Inject(APP_BASE_HREF) public BASE_HREF: string) {}
 }

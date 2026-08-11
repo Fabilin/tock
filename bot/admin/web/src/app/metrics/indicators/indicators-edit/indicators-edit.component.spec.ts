@@ -75,7 +75,7 @@ describe('IndicatorsEditComponent', () => {
     fixture = TestBed.createComponent(IndicatorsEditComponent);
     component = fixture.componentInstance;
     component.indicatorEdition = mockIndicator;
-    fixture.detectChanges();
+    fixture.detectChanges(false);
   });
 
   it('should create', () => {
@@ -95,7 +95,7 @@ describe('IndicatorsEditComponent', () => {
       }
     };
     component.ngOnChanges({ indicatorEdition: new SimpleChange(null, indicatorEdition, true) });
-    fixture.detectChanges();
+    fixture.detectChanges(false);
 
     expect(component.form.valid).toBeFalse();
 

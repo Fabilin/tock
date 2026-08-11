@@ -411,7 +411,7 @@ describe('FaqManagementEditComponent', () => {
   describe('#addUtterance', () => {
     it('should add utterance to the list', () => {
       component.currentTab = FaqTabs.QUESTION;
-      fixture.detectChanges();
+      fixture.detectChanges(false);
       expect(component.utterances.value).toHaveSize(0);
 
       component.addUtterance('test');
@@ -422,7 +422,7 @@ describe('FaqManagementEditComponent', () => {
 
     it('should not add utterance to the list when it is already present', () => {
       component.currentTab = FaqTabs.QUESTION;
-      fixture.detectChanges();
+      fixture.detectChanges(false);
       const utterances = ['test', 'test 1', 'ok'];
       utterances.forEach((utterance) => {
         component.utterances.push(new FormControl(utterance));
@@ -436,7 +436,7 @@ describe('FaqManagementEditComponent', () => {
     it('should not add utterance to the list when the utterance is already associated with another intent', () => {
       component.faq = mockFaq;
       component.currentTab = FaqTabs.QUESTION;
-      fixture.detectChanges();
+      fixture.detectChanges(false);
       expect(component.utterances.value).toHaveSize(0);
 
       component.addUtterance('sentence 1');

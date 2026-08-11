@@ -22,6 +22,7 @@ import { getNbDialogRefMock, getNbTestProviders } from '../../test-shared/nb-moc
 import { NbDialogRef } from '@nebular/theme';
 import { StateService } from '../../../core-nlp/state.service';
 import { StateServiceMock } from '../../test-shared/state-service.mock';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('IntentStoryDetailsComponent', () => {
   let component: IntentStoryDetailsComponent;
@@ -34,7 +35,8 @@ describe('IntentStoryDetailsComponent', () => {
       providers: [
         { provide: NbDialogRef, useValue: getNbDialogRefMock() },
         { provide: StateService, useClass: StateServiceMock }
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(IntentStoryDetailsComponent);

@@ -34,7 +34,7 @@ describe('LogStatsComponent', () => {
       imports: [TestSharedModule],
       providers: [
         { provide: StateService, useClass: StateServiceMock },
-        { provide: QualityService, useValue: { logStats: () => of({ total: 0, data: [] }) } }
+        { provide: QualityService, useValue: { logStats: () => of([]) } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

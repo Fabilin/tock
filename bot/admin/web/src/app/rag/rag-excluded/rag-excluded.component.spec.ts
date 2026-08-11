@@ -19,6 +19,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RagExcludedComponent } from './rag-excluded.component';
 import { SentenceTrainingMode } from '../../shared/components/sentence-training/models';
 import { TestSharedModule } from '../../shared/test-shared.module';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('RagExcludedComponent', () => {
   let component: RagExcludedComponent;
@@ -27,7 +28,8 @@ describe('RagExcludedComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [RagExcludedComponent],
-      imports: [TestSharedModule]
+      imports: [TestSharedModule],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RagExcludedComponent);

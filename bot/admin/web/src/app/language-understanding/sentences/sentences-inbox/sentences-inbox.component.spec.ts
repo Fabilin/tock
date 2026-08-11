@@ -18,6 +18,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SentencesInboxComponent } from './sentences-inbox.component';
 import { TestSharedModule } from '../../../shared/test-shared.module';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('SentencesInboxComponent', () => {
   let component: SentencesInboxComponent;
@@ -26,7 +27,8 @@ describe('SentencesInboxComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SentencesInboxComponent],
-      imports: [TestSharedModule]
+      imports: [TestSharedModule],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SentencesInboxComponent);
