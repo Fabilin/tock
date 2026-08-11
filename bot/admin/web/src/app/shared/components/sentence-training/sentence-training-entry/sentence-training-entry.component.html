@@ -7,26 +7,28 @@
     class="grid-columns flex-wrap p-3"
     [ngClass]="{ 'grid-columns-without-selection': !selection }"
   >
+    @if (selection) {
     <nb-checkbox
-      *ngIf="selection"
       [checked]="isSentenceSelected()"
       (checkedChange)="toggle()"
       class="mt-1"
     ></nb-checkbox>
+    }
 
     <div class="flex-grow-1">
       <tock-sentence-training-sentence [sentence]="sentence"></tock-sentence-training-sentence>
 
+      @if (sentence.forReview && sentence.reviewComment) {
       <nb-card
         class="mx-3 mt-2 mb-0"
         accent="info"
-        *ngIf="sentence.forReview && sentence.reviewComment"
       >
         <nb-card-body class="text-muted review">
           <strong class="d-block">{{ 'shared.sentence-training-entry.review-comment' | transloco }} :</strong>
           {{ sentence.reviewComment }}
         </nb-card-body>
       </nb-card>
+      }
     </div>
 
     <div class="tools-panel">
@@ -67,12 +69,11 @@
           {{ sentence.configuration }}
         </span>
 
-        <span
-          *ngIf="sentence.qualifier"
-          [nbTooltip]="'shared.sentence-training-entry.qualifier' | transloco"
-        >
+        @if (sentence.qualifier) {
+        <span [nbTooltip]="'shared.sentence-training-entry.qualifier' | transloco">
           {{ sentence.qualifier }}
         </span>
+        }
       </div>
 
       <div class="d-flex mb-1">
@@ -98,14 +99,15 @@
             [nbAutocomplete]="intentsAutocomplete"
             class="intent-input"
           />
+          @if (isIntentStorySearchable()) {
           <nb-icon
             nbSuffix
             icon="book"
-            *ngIf="isIntentStorySearchable()"
             (click)="displayIntentStoryDetails()"
             [nbTooltip]="'shared.sentence-training-entry.show-intent-story-details' | transloco"
             class="pointer"
           ></nb-icon>
+          }
         </nb-form-field>
         <button
           nbButton
@@ -116,9 +118,11 @@
           [class.pr-1]="!intentHasChanged()"
           (click)="swapStatsDetails()"
         >
-          <span *ngIf="!intentHasChanged()">
+          @if (!intentHasChanged()) {
+          <span>
             {{ getSentenceAttribut('probability') | percent: '1.0-1' }}
           </span>
+          }
           <nb-icon
             [icon]="sentence._showStatsDetails ? 'chevron-up-outline' : 'chevron-down-outline'"
             pack="nebular-essentials"
@@ -130,38 +134,29 @@
           #intentsAutocomplete
           (selectedChange)="addIntentToSentence($event)"
         >
-          <nb-option-group
-            *ngFor="let group of filteredIntentGroups | async"
-            [title]="group.category"
-          >
-            <nb-option
-              *ngFor="let intent of group.intents"
-              [value]="intent._id"
-            >
+          @for (group of filteredIntentGroups | async; track group) {
+          <nb-option-group [title]="group.category">
+            @for (intent of group.intents; track intent) {
+            <nb-option [value]="intent._id">
               {{ intent.label || intent.name }}
             </nb-option>
+            }
           </nb-option-group>
+          }
         </nb-autocomplete>
       </div>
 
-      <div
-        class="stats-details font-size-small mb-3"
-        *ngIf="sentence._showStatsDetails"
-      >
+      @if (sentence._showStatsDetails) {
+      <div class="stats-details font-size-small mb-3">
         <div class="d-flex gap-1 justify-content-between">
           <span>{{ 'shared.sentence-training-entry.intent-probability' | transloco }} :</span>
           <span>{{ sentence.classification.intentProbability | percent: '1.0-2' }}</span>
         </div>
-
-        <div
-          class="text-muted font-size-small"
-          *ngIf="sentence.classification.otherIntentsProbabilities?.size"
-        >
-          {{ 'shared.sentence-training-entry.other-intents-probability' | transloco }} :
-          <div
-            class="d-flex gap-1 justify-content-between"
-            *ngFor="let i of sentence.classification.otherIntentsProbabilities | keyvalue: originalOrder"
-          >
+        @if (sentence.classification.otherIntentsProbabilities?.size) {
+        <div class="text-muted font-size-small">
+          {{ 'shared.sentence-training-entry.other-intents-probability' | transloco }} : @for (i of
+          sentence.classification.otherIntentsProbabilities | keyvalue: originalOrder; track i) {
+          <div class="d-flex gap-1 justify-content-between">
             <span>
               {{ state.intentLabelByName(i.key) }}
               <button
@@ -176,32 +171,30 @@
             </span>
             <span>{{ i.value | percent: '1.0-2' }}</span>
           </div>
+          }
         </div>
-
+        }
         <hr class="my-1" />
-
         <div class="d-flex gap-1 justify-content-between">
           <span>{{ 'shared.sentence-training-entry.entities-probability' | transloco }} :</span>
           <span>{{ sentence.classification.entitiesProbability | percent: '1.0-2' }}</span>
         </div>
-
-        <div
-          class="text-muted font-size-small"
-          *ngIf="sentence.classification.notRetainedEntities?.length"
-        >
-          {{ 'shared.sentence-training-entry.other-entities-probability' | transloco }} :
-          <div
-            class="d-flex gap-1 justify-content-between"
-            *ngFor="let i of sentence.notRetainedEntitiesContainer().getEntities()"
-          >
+        @if (sentence.classification.notRetainedEntities?.length) {
+        <div class="text-muted font-size-small">
+          {{ 'shared.sentence-training-entry.other-entities-probability' | transloco }} : @for (i of
+          sentence.notRetainedEntitiesContainer().getEntities(); track i) {
+          <div class="d-flex gap-1 justify-content-between">
             <span
               >{{ i.value ? sentence.notRetainedEntitiesContainer().entityText(i) : '' }}
               {{ sentence.notRetainedEntitiesContainer().entityValue(i) }}</span
             >
             <span>{{ i.probability | percent: '1.0-2' }}</span>
           </div>
+          }
         </div>
+        }
       </div>
+      }
 
       <div class="d-flex flex-wrap justify-content-between align-items-center">
         <button
@@ -231,8 +224,8 @@
           <nb-icon icon="search"></nb-icon>
         </button>
 
+        @if (sentenceTrainingMode !== SentenceTrainingMode.UNKNOWN) {
         <button
-          *ngIf="sentenceTrainingMode !== SentenceTrainingMode.UNKNOWN"
           nbButton
           [nbTooltip]="'shared.sentence-training-entry.set-as-unknown' | transloco"
           status="warning"
@@ -245,9 +238,8 @@
         >
           <nb-icon icon="question-circle"></nb-icon>
         </button>
-
+        } @if (sentenceTrainingMode !== SentenceTrainingMode.RAGEXCLUDED) {
         <button
-          *ngIf="sentenceTrainingMode !== SentenceTrainingMode.RAGEXCLUDED"
           nbButton
           [nbTooltip]="'shared.sentence-training-entry.exclude-from-rag' | transloco"
           status="warning"
@@ -262,6 +254,7 @@
         >
           <nb-icon icon="lightbulb-off"></nb-icon>
         </button>
+        }
 
         <button
           nbButton
@@ -287,12 +280,11 @@
             [(ngModel)]="sentence.language"
             [placeholder]="'shared.sentence-training-entry.sentence-language' | transloco"
           >
-            <nb-option
-              *ngFor="let l of state.currentApplication.supportedLocales"
-              [value]="l"
-            >
+            @for (l of state.currentApplication.supportedLocales; track l) {
+            <nb-option [value]="l">
               {{ state.localeName(l) }}
             </nb-option>
+            }
           </nb-select>
         </nb-form-field>
       </div>
@@ -310,8 +302,8 @@
             <nb-icon icon="compass"></nb-icon>
           </button>
 
+          @if (state.hasRole(UserRole.botUser)) {
           <button
-            *ngIf="state.hasRole(UserRole.botUser)"
             nbButton
             [nbTooltip]="'shared.sentence-training-entry.create-faq' | transloco"
             ghost
@@ -321,10 +313,11 @@
           >
             <nb-icon icon="chat-left-text"></nb-icon>
           </button>
+          }
         </div>
 
+        @if (!standAlone) {
         <button
-          *ngIf="!standAlone"
           nbButton
           [nbTooltip]="'shared.sentence-training-entry.show-dialog' | transloco"
           ghost
@@ -334,6 +327,7 @@
         >
           <nb-icon icon="wechat"></nb-icon>
         </button>
+        }
       </div>
     </div>
   </nb-card-body>
