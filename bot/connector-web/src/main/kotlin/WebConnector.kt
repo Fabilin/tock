@@ -144,6 +144,7 @@ class WebConnector internal constructor(
                 .handler { context ->
                     context.put(CONNECTOR_PUBLIC_PATH_CONTEXT_KEY, publicPath)
                     context.put(CONNECTOR_ID_CONTEXT_KEY, connectorId)
+                    context.next()
                 }
 
             if (sseEnabled) {
