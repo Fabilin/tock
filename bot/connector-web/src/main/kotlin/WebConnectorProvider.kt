@@ -32,10 +32,12 @@ import ai.tock.shared.security.auth.spi.WebSecurityMode
 import kotlin.reflect.KClass
 
 private const val WEB_SECURITY_MODE_PARAM = "web_security_mode"
+private const val PUBLIC_PATH_PARAM = "public_path"
 
 private val cookieAuth = booleanProperty("tock_web_cookie_auth", false)
 
-internal object WebConnectorProvider : ConnectorProvider {
+// used in file META-INF/services/ai.tock.bot.connector.ConnectorProvider
+class WebConnectorProvider : ConnectorProvider {
     override val connectorType: ConnectorType get() = webConnectorType
 
     override fun connector(connectorConfiguration: ConnectorConfiguration): Connector {
@@ -50,10 +52,13 @@ internal object WebConnectorProvider : ConnectorProvider {
                     // If not, it picks PASSTHROUGH (which likely means no special security measures).
                     ?: if (cookieAuth) WebSecurityMode.COOKIES else WebSecurityMode.PASSTHROUGH
 
+            val publicPath = parameters[PUBLIC_PATH_PARAM] ?: path
+
             return WebConnector(
                 connectorId,
                 path,
-                injector.provide<WebSecurityHandler>(tag = webSecurityType.name),
+                webSecurityHandler = injector.provide<WebSecurityHandler>(tag = webSecurityType.name),
+                publicPath = publicPath,
             )
         }
     }
@@ -69,11 +74,13 @@ internal object WebConnectorProvider : ConnectorProvider {
                         key = WEB_SECURITY_MODE_PARAM,
                         mandatory = false,
                     ),
+                    ConnectorTypeConfigurationField(
+                        label = "Public Path (if different from local REST Path)",
+                        key = PUBLIC_PATH_PARAM,
+                        mandatory = false,
+                    ),
                 ),
         )
 
     override val supportedResponseConnectorMessageTypes: Set<KClass<out ConnectorMessage>> = setOf(WebMessage::class)
 }
-
-// used in file META-INF/services/ai.tock.bot.connector.ConnectorProvider
-internal class WebConnectorProviderService : ConnectorProvider by WebConnectorProvider

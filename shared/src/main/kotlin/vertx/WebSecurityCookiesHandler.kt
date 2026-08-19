@@ -23,6 +23,7 @@ import ai.tock.shared.propertyOrNull
 import ai.tock.shared.provide
 import ai.tock.shared.security.auth.spi.TOCK_USER_ID
 import ai.tock.shared.security.auth.spi.WebSecurityHandler
+import ai.tock.shared.security.auth.spi.WebSecurityHandler.Companion.CONNECTOR_PUBLIC_PATH_CONTEXT_KEY
 import io.vertx.core.http.Cookie
 import io.vertx.core.http.CookieSameSite
 import io.vertx.ext.web.RoutingContext
@@ -70,11 +71,12 @@ class WebSecurityCookiesHandler : WebSecurityHandler {
                     .setSameSite(CookieSameSite.NONE) // bot backend may not be on the same domain as the website frontend
 
             if (cookieAuthMaxAge >= 0) {
-                cookie.setMaxAge(cookieAuthMaxAge)
+                cookie.maxAge = cookieAuthMaxAge
             }
 
-            if (cookieAuthPath != null) {
-                cookie.setPath(cookieAuthPath)
+            val cookiePath: String? = cookieAuthPath ?: context[CONNECTOR_PUBLIC_PATH_CONTEXT_KEY]
+            if (cookiePath != null) {
+                cookie.path = cookiePath
             }
 
             context.response().addCookie(cookie)

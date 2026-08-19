@@ -96,11 +96,15 @@ class WebConnector internal constructor(
     val connectorId: String,
     val path: String,
     private val webSecurityHandler: WebSecurityHandler,
+    private val publicPath: String,
 ) : ConnectorBase(webConnectorType, setOf(CAROUSEL)), OrchestrationConnector {
     @Deprecated("Use the more aptly named connectorId field", ReplaceWith("connectorId"))
     val applicationId: String get() = connectorId
 
     companion object {
+        const val CONNECTOR_PUBLIC_PATH_CONTEXT_KEY = WebSecurityHandler.CONNECTOR_PUBLIC_PATH_CONTEXT_KEY
+        const val CONNECTOR_ID_CONTEXT_KEY = WebSecurityHandler.CONNECTOR_ID_CONTEXT_KEY
+
         private val logger = KotlinLogging.logger {}
         private val messageProcessor =
             WebMessageProcessor(
@@ -133,8 +137,14 @@ class WebConnector internal constructor(
                     // browsers do not send or save cookies unless credentials are allowed
                     .allowCredentials(webSecurityHandler is WebSecurityCookiesHandler)
 
-            // Apply CORS Handler for all paths and all methods (OPTIONS handled automatically)
-            router.route("$path*").handler(corsHandler)
+            router.route("$path*")
+                // Apply CORS Handler for all paths and all methods (OPTIONS handled automatically)
+                .handler(corsHandler)
+                // add context for additional handlers
+                .handler { context ->
+                    context.put(CONNECTOR_PUBLIC_PATH_CONTEXT_KEY, publicPath)
+                    context.put(CONNECTOR_ID_CONTEXT_KEY, connectorId)
+                }
 
             if (sseEnabled) {
                 sseEndpoint.configureRoute(router, "$path/sse", connectorId, webSecurityHandler)
