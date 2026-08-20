@@ -63,8 +63,9 @@ class AesGcmCipher(
     }
 
     constructor(passphrase: String) : this(
-        key = MessageDigest.getInstance(PASSPHRASE_HASH_ALGORITHM)
-            .digest(passphrase.toByteArray(StandardCharsets.UTF_8))
+        key =
+            MessageDigest.getInstance(PASSPHRASE_HASH_ALGORITHM)
+                .digest(passphrase.toByteArray(StandardCharsets.UTF_8)),
     )
 
     private val aesGcmKey: SecretKeySpec by lazy {
