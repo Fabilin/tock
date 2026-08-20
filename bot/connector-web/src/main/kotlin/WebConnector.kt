@@ -82,7 +82,10 @@ internal const val WEB_CONNECTOR_ID = "web"
  */
 val webConnectorType = ConnectorType(WEB_CONNECTOR_ID)
 
-private val corsPattern = property("tock_web_cors_pattern", ".*")
+private const val WILDCARD_CORS_PATTERN = ".*"
+private const val CORS_PATTERN_PROPERTY = "tock_web_cors_pattern"
+
+private val corsPattern = property(CORS_PATTERN_PROPERTY, WILDCARD_CORS_PATTERN)
 private val sseEnabled = booleanProperty("tock_web_sse", false)
 private val directSseEnabled = booleanProperty("tock_web_direct_sse", false)
 
@@ -119,6 +122,10 @@ class WebConnector internal constructor(
     override fun register(controller: ConnectorController) {
         controller.coRegisterServices(path) { router ->
             logger.debug("deploy web connector services for root path $path ")
+
+            if (webSecurityHandler is WebSecurityCookiesHandler && corsPattern == WILDCARD_CORS_PATTERN) {
+                logger.warn { "CORS config is allowing any website, requests are susceptible to CSRF!! Please set $CORS_PATTERN_PROPERTY to match only the domains you trust." }
+            }
 
             val corsHandler =
                 CorsHandler.create()
