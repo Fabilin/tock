@@ -144,7 +144,8 @@ class WebConnector internal constructor(
                     // browsers do not send or save cookies unless credentials are allowed
                     .allowCredentials(webSecurityHandler is WebSecurityCookiesHandler)
 
-            router.route("$path*")
+            router.routeWithRegex("$path(/.*)?")
+                .order(-10)
                 // Apply CORS Handler for all paths and all methods (OPTIONS handled automatically)
                 .handler(corsHandler)
                 // add context for additional handlers
