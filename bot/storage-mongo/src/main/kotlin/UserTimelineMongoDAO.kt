@@ -92,6 +92,8 @@ import com.mongodb.client.model.Filters.gte
 import com.mongodb.client.model.Filters.`in`
 import com.mongodb.client.model.Filters.lte
 import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bson.Document
@@ -108,7 +110,6 @@ import org.litote.kmongo.ascending
 import org.litote.kmongo.avg
 import org.litote.kmongo.bson
 import org.litote.kmongo.combine
-import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.aggregate
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.descending
@@ -127,6 +128,7 @@ import org.litote.kmongo.match
 import org.litote.kmongo.not
 import org.litote.kmongo.orderBy
 import org.litote.kmongo.project
+import org.litote.kmongo.pull
 import org.litote.kmongo.push
 import org.litote.kmongo.regex
 import org.litote.kmongo.replaceUpsert
@@ -382,31 +384,27 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 }
                 1
             } ?: 0
-        val dialogs =
-            dialogCol
-                .find(
-                    and(
-                        Namespace eq namespace,
-                        PlayerIds contains oldPlayerId,
+        val dialogFilter =
+            and(
+                Namespace eq namespace,
+                eq("playerIds.id", oldPlayerId.id),
+            )
+        val dialogResult =
+            dialogCol.updateMany(
+                dialogFilter,
+                Updates.combine(
+                    Updates.set("stories.\$[].actions.\$[player].playerId", newPlayerId),
+                    Updates.set("stories.\$[].actions.\$[recipient].recipientId", newPlayerId),
+                ),
+                UpdateOptions().arrayFilters(
+                    listOf(
+                        eq("player.playerId.id", oldPlayerId.id),
+                        eq("recipient.recipientId.id", oldPlayerId.id),
                     ),
-                ).toList()
-        dialogs.forEach { dialog ->
-            dialog.stories.forEach { story ->
-                story.actions.forEach { action ->
-                    if (action.playerId == oldPlayerId) {
-                        action.playerId = newPlayerId
-                    }
-                    if (action.recipientId == oldPlayerId) {
-                        action.recipientId = newPlayerId
-                    }
-                }
-            }
-            dialogCol.save(
-                dialog.copy(
-                    playerIds = dialog.playerIds - oldPlayerId + newPlayerId,
                 ),
             )
-        }
+        dialogCol.updateMany(dialogFilter, addToSet(PlayerIds, newPlayerId))
+        dialogCol.updateMany(dialogFilter, pull(PlayerIds, oldPlayerId))
         if (newPlayerId.clientId != null) {
             clientIdCol.updateOneById(
                 newPlayerId.clientId!!,
@@ -417,7 +415,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 upsert(),
             )
         }
-        return timelineUpdated + dialogs.size
+        return timelineUpdated + dialogResult.matchedCount
     }
 
     private suspend fun removeDialogDependencies(dialogs: List<DialogCol>) {
