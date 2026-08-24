@@ -370,18 +370,18 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         namespace: String,
         oldPlayerId: PlayerId,
         newPlayerId: PlayerId,
-    ): Boolean {
+    ): Long {
         val oldTimelineId = timelineId(oldPlayerId.id, namespace)
         val newTimelineId = timelineId(newPlayerId.id, namespace)
         val oldTimeline = userTimelineCol.findOneById(oldTimelineId)
-        val timelineUpdated =
+        val timelineUpdated: Long =
             oldTimeline?.let {
                 userTimelineCol.save(it.copy(_id = newTimelineId.toId(), playerId = newPlayerId))
                 if (oldTimelineId != newTimelineId) {
                     userTimelineCol.deleteOneById(oldTimelineId)
                 }
-                true
-            } ?: false
+                1
+            } ?: 0
         val dialogs =
             dialogCol
                 .find(
@@ -417,7 +417,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 upsert(),
             )
         }
-        return timelineUpdated || dialogs.isNotEmpty()
+        return timelineUpdated + dialogs.size
     }
 
     private suspend fun removeDialogDependencies(dialogs: List<DialogCol>) {
@@ -465,7 +465,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         namespace: String,
         playerId: PlayerId,
         clearLock: Boolean,
-    ): Boolean {
+    ): Long {
         val dialogs = dialogCol.find(and(PlayerIds.id eq playerId.id, Namespace eq namespace)).toList()
         removeDialogDependencies(dialogs)
         val deletedDialogs = dialogCol.deleteMany(and(PlayerIds.id eq playerId.id, Namespace eq namespace))
@@ -473,7 +473,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         if (clearLock) {
             MongoUserLock.deleteLock(playerId.id)
         }
-        return deletedTimelines.deletedCount > 0 || deletedDialogs.deletedCount > 0
+        return deletedTimelines.deletedCount + deletedDialogs.deletedCount
     }
 
     private suspend fun saveConnectorMessage(

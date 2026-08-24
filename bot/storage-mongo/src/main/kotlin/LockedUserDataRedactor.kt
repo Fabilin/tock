@@ -26,7 +26,7 @@ class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserL
         oldUserId: String,
         newUserId: String,
     ): RedactionResult {
-        if (oldUserId == newUserId) return RedactionResult(recordsAffected = 0)
+        if (oldUserId == newUserId) return RedactionResult(recordsAffected = emptyMap())
 
         // Sort our identifiers to avoid concurrent opposite migrations causing a deadlock (unlikely but cheap to avoid)
         val firstId = minOf(oldUserId, newUserId)

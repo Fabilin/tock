@@ -191,7 +191,7 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
             ),
         )
 
-        assertTrue(UserTimelineMongoDAO.remove(namespace, user))
+        assertTrue(UserTimelineMongoDAO.remove(namespace, user) > 0)
 
         assertNull(UserTimelineMongoDAO.dialogTextCol.findOne(DialogTextCol::dialogId eq dialog.id))
         assertNull(UserTimelineMongoDAO.connectorMessageCol.findOneById(ConnectorMessageColId(actionId, dialog.id)))

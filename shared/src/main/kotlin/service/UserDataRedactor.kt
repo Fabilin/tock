@@ -48,7 +48,7 @@ interface UserDataRedactor {
 /**
  * Outcome of a redaction operation
  *
- * @property recordsAffected the number of records successfully affected by this operation, summed
+ * @property recordsAffected a summary of records successfully affected by this operation, summed
  * across every provider that completed without error
  * @property failures the failures raised by individual providers, if any. An empty list means every
  * provider completed successfully (though possibly affecting zero records)
@@ -56,11 +56,24 @@ interface UserDataRedactor {
  * @see UserDataRedactor.deleteByUserId
  */
 data class RedactionResult(
-    val recordsAffected: Long,
+    val recordsAffected: Map<String, Long>,
     val failures: List<RedactionFailure> = emptyList(),
 ) {
+    /**
+     * @param recordType a short descriptive name for the type of record affected
+     * @param affectedCount the number of records successfully affected by this operation
+     */
+    constructor(recordType: String, affectedCount: Long): this(mapOf(recordType to affectedCount))
+
     /** true if every provider completed without error. */
     val isSuccess: Boolean get() = failures.isEmpty()
+
+    val totalRecordsAffected get() = recordsAffected.values.sum()
+
+    companion object {
+        context(provider: UserDataRedactionProvider)
+        operator fun invoke(affectedCount: Long) = RedactionResult(provider.name, affectedCount)
+    }
 }
 
 /**

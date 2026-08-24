@@ -18,25 +18,26 @@ package ai.tock.bot.engine.user
 
 import ai.tock.shared.injector
 import ai.tock.shared.provide
+import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactionProvider
 
 class UserTimelineRedactionProvider : UserDataRedactionProvider {
     private val userTimelineDAO: UserTimelineDAO get() = injector.provide()
 
+    override val name: String = "user_timeline"
+
     override suspend fun migrateUserId(
         namespace: String,
         oldUserId: String,
         newUserId: String,
-    ): Long {
-        val updated = userTimelineDAO.updatePlayerId(namespace, PlayerId(oldUserId), PlayerId(newUserId))
-        return if (updated) 1 else 0
-    }
+    ) = RedactionResult(
+        userTimelineDAO.updatePlayerId(namespace, PlayerId(oldUserId), PlayerId(newUserId))
+    )
 
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): Long {
-        val updated = userTimelineDAO.remove(namespace, PlayerId(userId), clearLock = false)
-        return if (updated) 1 else 0
-    }
+    ) = RedactionResult(
+        userTimelineDAO.remove(namespace, PlayerId(userId), clearLock = false)
+    )
 }

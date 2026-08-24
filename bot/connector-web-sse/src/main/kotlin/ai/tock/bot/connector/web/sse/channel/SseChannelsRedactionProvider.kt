@@ -18,23 +18,22 @@ package ai.tock.bot.connector.web.sse.channel
 
 import ai.tock.shared.injector
 import ai.tock.shared.provide
+import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactionProvider
 
 class SseChannelsRedactionProvider : UserDataRedactionProvider {
     private val channels: SseChannels get() = injector.provide()
 
+    override val name: String = "web_sse_messages"
+
     override suspend fun migrateUserId(
         namespace: String,
         oldUserId: String,
         newUserId: String,
-    ): Long {
-        return channels.migrate(appId = null, oldUserId, newUserId)
-    }
+    ) = RedactionResult(channels.migrate(appId = null, oldUserId, newUserId))
 
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): Long {
-        return channels.deletePersistedEvents(userId)
-    }
+    ) = RedactionResult(channels.deletePersistedEvents(userId))
 }

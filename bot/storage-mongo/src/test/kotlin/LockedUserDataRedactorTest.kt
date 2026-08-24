@@ -48,7 +48,7 @@ class LockedUserDataRedactorTest {
 
     @Test
     fun `migrateUserId locks both old and new userId before delegating`() {
-        val expected = RedactionResult(recordsAffected = 3L)
+        val expected = RedactionResult("test", 3L)
         coEvery { delegate.migrateUserId(namespace, oldUserId, newUserId) } returns expected
 
         val result = runBlocking { redactor.migrateUserId(namespace, oldUserId, newUserId) }
@@ -63,7 +63,7 @@ class LockedUserDataRedactorTest {
 
     @Test
     fun `migrateUserId locks user ids in a deterministic order`() {
-        val expected = RedactionResult(recordsAffected = 3L)
+        val expected = RedactionResult("test", 3L)
         coEvery { delegate.migrateUserId(namespace, "z-user", "a-user") } returns expected
 
         val result = runBlocking { redactor.migrateUserId(namespace, "z-user", "a-user") }
@@ -80,14 +80,14 @@ class LockedUserDataRedactorTest {
     fun `migrateUserId is a no-op when both user ids are identical`() {
         val result = runBlocking { redactor.migrateUserId(namespace, userId, userId) }
 
-        assertEquals(RedactionResult(recordsAffected = 0), result)
+        assertEquals(RedactionResult(emptyMap()), result)
         coVerify(exactly = 0) { userLock.withLock<RedactionResult>(any(), any(), any()) }
         coVerify(exactly = 0) { delegate.migrateUserId(any(), any(), any()) }
     }
 
     @Test
     fun `deleteByUserId locks the userId before delegating`() {
-        val expected = RedactionResult(recordsAffected = 1L)
+        val expected = RedactionResult("test", 1L)
         coEvery { delegate.deleteByUserId(namespace, userId) } returns expected
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }

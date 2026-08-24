@@ -57,13 +57,13 @@ interface UserTimelineDAO {
     /**
      * Update playerId for dialog and user timelines.
      *
-     * @return `true` if a timeline was modified (and therefore existed for the oldPlayerId)
+     * @return the number of records affected by this operation
      */
     suspend fun updatePlayerId(
         namespace: String,
         oldPlayerId: PlayerId,
         newPlayerId: PlayerId,
-    ): Boolean
+    ): Long
 
     /**
      * Loads with last dialog. If no timeline exists, creates a new one.
@@ -101,13 +101,13 @@ interface UserTimelineDAO {
     /**
      * Remove the timeline and the associated dialogs.
      *
-     * @return `true` if a timeline was deleted (and therefore existed for the oldPlayerId)
+     * @return the number of records deleted by this operation
      */
     suspend fun remove(
         namespace: String,
         playerId: PlayerId,
         clearLock: Boolean = true,
-    ): Boolean
+    ): Long
 
     /**
      * Remove all timelines and associated dialogs of a client.

@@ -23,6 +23,11 @@ package ai.tock.shared.service
  */
 interface UserDataRedactionProvider {
     /**
+     * a short descriptive name for the type of data affected by this provider
+     */
+    val name: String
+
+    /**
      * Migrates all data linked to a userId
      *
      * It is the caller's responsibility to ensure no concurrent access is made during the migration
@@ -33,7 +38,7 @@ interface UserDataRedactionProvider {
         namespace: String,
         oldUserId: String,
         newUserId: String,
-    ): Long
+    ): RedactionResult
 
     /**
      * Deletes all personal data linked to a userId
@@ -45,5 +50,5 @@ interface UserDataRedactionProvider {
     suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): Long
+    ): RedactionResult
 }

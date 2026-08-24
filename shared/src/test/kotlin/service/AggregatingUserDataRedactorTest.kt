@@ -33,21 +33,23 @@ class AggregatingUserDataRedactorTest {
     private val newUserId = "new"
     private val userId = "user"
 
+    private fun result(count: Long) = RedactionResult("test_data", count)
+
     @Test
     fun `migrateUserId sums records affected across every provider`() {
         val provider1 =
             mockk<UserDataRedactionProvider> {
-                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 2L
+                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns result(2)
             }
         val provider2 =
             mockk<UserDataRedactionProvider> {
-                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 3L
+                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns result(3)
             }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))
 
         val result = runBlocking { redactor.migrateUserId(namespace, oldUserId, newUserId) }
 
-        assertEquals(5L, result.recordsAffected)
+        assertEquals(5L, result.totalRecordsAffected)
         assertTrue(result.isSuccess)
         assertTrue(result.failures.isEmpty())
     }
@@ -56,17 +58,17 @@ class AggregatingUserDataRedactorTest {
     fun `deleteByUserId sums records affected across every provider`() {
         val provider1 =
             mockk<UserDataRedactionProvider> {
-                coEvery { deleteByUserId(namespace, userId) } returns 1L
+                coEvery { deleteByUserId(namespace, userId) } returns result(1)
             }
         val provider2 =
             mockk<UserDataRedactionProvider> {
-                coEvery { deleteByUserId(namespace, userId) } returns 4L
+                coEvery { deleteByUserId(namespace, userId) } returns result(4)
             }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
 
-        assertEquals(5L, result.recordsAffected)
+        assertEquals(5L, result.totalRecordsAffected)
         assertTrue(result.isSuccess)
     }
 
@@ -79,14 +81,14 @@ class AggregatingUserDataRedactorTest {
             }
         val succeedingProvider =
             mockk<UserDataRedactionProvider> {
-                coEvery { deleteByUserId(namespace, userId) } returns 7L
+                coEvery { deleteByUserId(namespace, userId) } returns result(7)
             }
         val redactor = AggregatingUserDataRedactor(listOf(failingProvider, succeedingProvider))
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
 
         // the succeeding provider's effect is still counted...
-        assertEquals(7L, result.recordsAffected)
+        assertEquals(7L, result.totalRecordsAffected)
         // ...and the failure is reported, not swallowed
         assertFalse(result.isSuccess)
         assertEquals(1, result.failures.size)
@@ -109,7 +111,7 @@ class AggregatingUserDataRedactorTest {
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
 
-        assertEquals(0L, result.recordsAffected)
+        assertEquals(0L, result.totalRecordsAffected)
         assertFalse(result.isSuccess)
         assertEquals(listOf(failure1, failure2), result.failures.map { it.error })
     }
@@ -120,7 +122,7 @@ class AggregatingUserDataRedactorTest {
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
 
-        assertEquals(0L, result.recordsAffected)
+        assertEquals(0L, result.totalRecordsAffected)
         assertTrue(result.isSuccess)
     }
 

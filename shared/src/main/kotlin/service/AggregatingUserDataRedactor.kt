@@ -51,20 +51,23 @@ class AggregatingUserDataRedactor(
         return runOnEachProvider { it.deleteByUserId(namespace, userId) }
     }
 
-    private suspend fun runOnEachProvider(operation: suspend (UserDataRedactionProvider) -> Long): RedactionResult {
-        var total = 0L
+    private suspend fun runOnEachProvider(operation: suspend (UserDataRedactionProvider) -> RedactionResult): RedactionResult {
+        val recordsAffected = mutableMapOf<String, Long>()
         val failures = mutableListOf<RedactionFailure>()
         for (delegate in delegates) {
             currentCoroutineContext().ensureActive()
             try {
-                total += operation(delegate)
+                val result = operation(delegate)
+                recordsAffected += result.recordsAffected
+                failures += result.failures
             } catch (e: CancellationException) {
                 throw e // cancellation should never be caught
             } catch (e: Exception) {
-                logger.error(e) { "redaction provider ${delegate::class.qualifiedName} failed" }
-                failures += RedactionFailure(delegate::class.qualifiedName ?: delegate::class.toString(), e)
+                val providerName = "${delegate.name} (${delegate::class.qualifiedName ?: delegate::class.toString()}"
+                logger.error(e) { "redaction provider $providerName failed" }
+                failures += RedactionFailure(providerName, e)
             }
         }
-        return RedactionResult(total, failures)
+        return RedactionResult(recordsAffected, failures)
     }
 }

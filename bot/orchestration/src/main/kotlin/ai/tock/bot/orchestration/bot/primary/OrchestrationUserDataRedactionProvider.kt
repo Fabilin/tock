@@ -17,19 +17,25 @@
 package ai.tock.bot.orchestration.bot.primary
 
 import ai.tock.bot.engine.user.PlayerId
+import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactionProvider
+
 
 class OrchestrationUserDataRedactionProvider(
     private val repository: OrchestrationRepository = MongoOrchestrationRepository,
 ) : UserDataRedactionProvider {
+    override val name: String = "bot_orchestration"
+
     override suspend fun migrateUserId(
         namespace: String,
         oldUserId: String,
         newUserId: String,
-    ): Long = repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
+    ) = RedactionResult(
+        repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
+    )
 
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): Long = repository.deleteByUserId(PlayerId(userId))
+    ) = RedactionResult(repository.deleteByUserId(PlayerId(userId)))
 }
