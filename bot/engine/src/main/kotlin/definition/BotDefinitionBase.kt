@@ -31,14 +31,19 @@ import ai.tock.bot.engine.nlp.BuiltInKeywordListener.endTestContextKeyword
 import ai.tock.bot.engine.nlp.BuiltInKeywordListener.testContextKeyword
 import ai.tock.bot.engine.nlp.keywordServices
 import ai.tock.bot.engine.user.UserTimelineDAO
+import ai.tock.shared.Executor
+import ai.tock.shared.coroutines.launchCoroutine
 import ai.tock.shared.error
 import ai.tock.shared.injector
+import ai.tock.shared.service.UserDataRedactor
 import ai.tock.shared.vertx.vertx
 import ai.tock.translator.I18nKeyProvider.Companion.generateKey
 import ai.tock.translator.I18nLabelValue
 import com.github.salomonbrys.kodein.instance
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Base implementation of [BotDefinition].
@@ -195,21 +200,17 @@ open class BotDefinitionBase(
             )
 
         private fun BotBus.handleDelete() {
-            val userTimelineDao: UserTimelineDAO by injector.instance()
+            val userDataRedactor: UserDataRedactor by injector.instance()
+            val executor: Executor by injector.instance()
             // run later to avoid the lock effect :)
-            vertx.setTimer(1000) {
-                vertx.executeBlocking(
-                    {
-                        try {
-                            runBlocking {
-                                userTimelineDao.remove(botDefinition.namespace, userId)
-                            }
-                        } catch (e: Exception) {
-                            logger.error(e)
-                        }
-                    },
-                    false,
-                )
+            // this must happen in a coroutine scope separate from the main story handling, so no AsyncBus here
+            executor.launchCoroutine {
+                delay(1000.milliseconds)
+                try {
+                    userDataRedactor.deleteByUserId(botDefinition.namespace, userId.id)
+                } catch (e: Exception) {
+                    logger.error(e)
+                }
             }
         }
 

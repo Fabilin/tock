@@ -29,8 +29,10 @@ import ai.tock.bot.engine.action.SendSentence
 import ai.tock.bot.engine.event.Event
 import ai.tock.bot.engine.event.MetadataEvent
 import ai.tock.bot.engine.event.TypingOnEvent
+import ai.tock.bot.engine.user.LockAcquisitionException
 import ai.tock.bot.engine.user.PlayerId
 import ai.tock.bot.engine.user.UserLock
+import ai.tock.bot.engine.user.UserLockException
 import ai.tock.bot.engine.user.UserPreferences
 import ai.tock.bot.engine.user.UserTimeline
 import ai.tock.bot.engine.user.UserTimelineDAO
@@ -46,7 +48,6 @@ import com.github.salomonbrys.kodein.instance
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.coroutines.CoroutineRouterSupport
 import io.vertx.kotlin.coroutines.awaitBlocking
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -137,7 +138,7 @@ internal class TockConnectorController(
         try {
             if (!botDefinition.eventListener.listenEvent(this, data, event)) {
                 when (event) {
-                    is Action -> handleAction(event, 0, data)
+                    is Action -> handleAction(event, data)
 
                     else -> callback.eventSkipped(event)
                 }
@@ -174,16 +175,16 @@ internal class TockConnectorController(
     @ExperimentalTockCoroutines
     private suspend fun handleAction(
         action: Action,
-        nbAttempts: Int,
         data: ConnectorData,
     ) {
         val callback = data.callback
-        try {
-            val playerId = action.playerId
-            val id = playerId.id
+        val playerId = action.playerId
+        val id = playerId.id
 
+        try {
             logger.debug { "try to lock $playerId" }
-            if (userLock.tryLock(id)) {
+            // Not aborting on lock loss to preserve old behavior
+            userLock.withLock(id, abortOnLockLoss = false) {
                 try {
                     callback.userLocked(action)
 
@@ -218,14 +219,10 @@ internal class TockConnectorController(
                         callback.userLockReleased(action)
                     }
                 }
-            } else if (nbAttempts < maxLockedAttempts) {
-                logger.debug { "$playerId locked - wait" }
-                delay(lockedAttemptsWait)
-                handleAction(action, nbAttempts + 1, data)
-            } else {
-                logger.debug { "$playerId locked for $maxLockedAttempts times - skip $action" }
-                callback.eventSkipped(action)
             }
+        } catch (e: LockAcquisitionException) {
+            logger.debug(e) { "failed to acquire lock for $playerId - skip $action" }
+            callback.eventSkipped(action)
         } catch (t: Throwable) {
             callback.exceptionThrown(action, t)
         }

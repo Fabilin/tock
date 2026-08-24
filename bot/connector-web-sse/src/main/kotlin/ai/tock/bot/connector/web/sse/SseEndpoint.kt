@@ -53,7 +53,7 @@ class SseEndpoint internal constructor(
 
     private val logger = KotlinLogging.logger {}
 
-    constructor(responseSerializer: ObjectMapper = webMapper) : this(responseSerializer, SseChannels(injector.provide()))
+    constructor(responseSerializer: ObjectMapper = webMapper) : this(responseSerializer, injector.provide())
 
     fun configureRoute(
         router: Router,

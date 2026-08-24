@@ -59,6 +59,19 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         return SseChannel(appId, UUID.randomUUID(), userId, onAction).also(channels::add)
     }
 
+    fun migrate(appId: String?, oldUserId: String, newUserId: String): Boolean {
+        var updated = false
+        channelsByUser[oldUserId]?.replaceAll {
+            if (appId == null || it.appId == appId) {
+                updated = true
+                it.copy(userId = newUserId)
+            } else {
+                it
+            }
+        }
+        return updated
+    }
+
     fun sendMissedEvents(channel: SseChannel) {
         channelDAO.handleMissedEvents(channel.appId, channel.userId) { (_, _, response) ->
             channel.onAction(response).map { true }

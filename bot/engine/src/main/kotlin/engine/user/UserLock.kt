@@ -32,5 +32,24 @@ interface UserLock {
      */
     suspend fun tryLock(userId: String): Boolean = lock(userId)
 
+    /**
+     * Runs [op] while holding the lock for [userId].
+     *
+     * The lock is acquired (retrying until available), and its lease is
+     * periodically renewed for as long as [op] is running. If [abortOnLockLoss]
+     * is `true` and the lease is ever lost to another owner (e.g. because [op]
+     * ran long enough for the lease to be taken over), [op] is aborted and this
+     * method throws [LockLostException]; otherwise [op] keeps running despite
+     * the lost lock.
+     *
+     * The lock is always released once [op] completes, is canceled, or throws.
+     *
+     * @param userId the user for which to lease a lock
+     * @param abortOnLockLoss if `true`, aborts [op] when the lock lease is lost prematurely
+     * @throws LockAcquisitionException when the lock cannot be acquired after a configurable amount of attempts
+     * @throws LockLostException if the lock is lost mid-operation
+     */
+    suspend fun <T> withLock(userId: String, abortOnLockLoss: Boolean = true, op: suspend () -> T): T
+
     suspend fun releaseLock(userId: String)
 }

@@ -370,9 +370,9 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         namespace: String,
         oldPlayerId: PlayerId,
         newPlayerId: PlayerId,
-    ) {
+    ): Boolean {
         val timelineId = timelineId(oldPlayerId.id, namespace)
-        userTimelineCol.updateOneById(timelineId, setValue(PlayerId, newPlayerId))
+        val timelineResult = userTimelineCol.updateOneById(timelineId, setValue(PlayerId, newPlayerId))
         dialogCol.updateMany(
             and(
                 Namespace eq namespace,
@@ -380,7 +380,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
             ),
             addToSet(PlayerIds, newPlayerId),
         )
-        dialogCol.updateMany(
+        val dialogResult = dialogCol.updateMany(
             and(
                 Namespace eq namespace,
                 PlayerIds contains newPlayerId,
@@ -397,6 +397,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 upsert(),
             )
         }
+        return timelineResult.modifiedCount > 0 || dialogResult.modifiedCount > 0
     }
 
     private suspend fun saveConnectorMessage(
@@ -538,10 +539,14 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
     override suspend fun remove(
         namespace: String,
         playerId: PlayerId,
-    ) {
-        dialogCol.deleteMany(and(PlayerIds.id eq playerId.id, Namespace eq namespace))
-        userTimelineCol.deleteOne(and(PlayerId.id eq playerId.id, Namespace eq namespace))
-        MongoUserLock.deleteLock(playerId.id)
+        clearLock: Boolean,
+    ): Boolean {
+        val deletedDialogs = dialogCol.deleteMany(and(PlayerIds.id eq playerId.id, Namespace eq namespace))
+        val deletedTimelines = userTimelineCol.deleteOne(and(PlayerId.id eq playerId.id, Namespace eq namespace))
+        if (clearLock) {
+            MongoUserLock.deleteLock(playerId.id)
+        }
+        return deletedTimelines.deletedCount > 0 || deletedDialogs.deletedCount > 0
     }
 
     override suspend fun removeClient(
