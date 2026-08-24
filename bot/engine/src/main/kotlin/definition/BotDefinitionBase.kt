@@ -30,18 +30,15 @@ import ai.tock.bot.engine.nlp.BuiltInKeywordListener.deleteKeyword
 import ai.tock.bot.engine.nlp.BuiltInKeywordListener.endTestContextKeyword
 import ai.tock.bot.engine.nlp.BuiltInKeywordListener.testContextKeyword
 import ai.tock.bot.engine.nlp.keywordServices
-import ai.tock.bot.engine.user.UserTimelineDAO
 import ai.tock.shared.Executor
 import ai.tock.shared.coroutines.launchCoroutine
 import ai.tock.shared.error
 import ai.tock.shared.injector
 import ai.tock.shared.service.UserDataRedactor
-import ai.tock.shared.vertx.vertx
 import ai.tock.translator.I18nKeyProvider.Companion.generateKey
 import ai.tock.translator.I18nLabelValue
 import com.github.salomonbrys.kodein.instance
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import kotlin.time.Duration.Companion.milliseconds
 

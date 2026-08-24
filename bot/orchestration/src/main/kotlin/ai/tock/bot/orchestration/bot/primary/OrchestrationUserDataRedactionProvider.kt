@@ -22,9 +22,14 @@ import ai.tock.shared.service.UserDataRedactionProvider
 class OrchestrationUserDataRedactionProvider(
     private val repository: OrchestrationRepository = MongoOrchestrationRepository,
 ) : UserDataRedactionProvider {
-    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): Long =
-        repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
+    override suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): Long = repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
 
-    override suspend fun deleteByUserId(namespace: String, userId: String): Long =
-        repository.deleteByUserId(PlayerId(userId))
+    override suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): Long = repository.deleteByUserId(PlayerId(userId))
 }

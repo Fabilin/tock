@@ -21,7 +21,11 @@ import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactor
 
 class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserLock) : UserDataRedactor {
-    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): RedactionResult {
+    override suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): RedactionResult {
         if (oldUserId == newUserId) return RedactionResult(recordsAffected = 0)
 
         // Sort our identifiers to avoid concurrent opposite migrations causing a deadlock (unlikely but cheap to avoid)
@@ -34,7 +38,10 @@ class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserL
         }
     }
 
-    override suspend fun deleteByUserId(namespace: String, userId: String): RedactionResult {
+    override suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): RedactionResult {
         return userLock.withLock(userId) {
             delegate.deleteByUserId(namespace, userId)
         }

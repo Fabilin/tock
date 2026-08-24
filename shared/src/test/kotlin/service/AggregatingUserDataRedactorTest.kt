@@ -35,12 +35,14 @@ class AggregatingUserDataRedactorTest {
 
     @Test
     fun `migrateUserId sums records affected across every provider`() {
-        val provider1 = mockk<UserDataRedactionProvider> {
-            coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 2L
-        }
-        val provider2 = mockk<UserDataRedactionProvider> {
-            coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 3L
-        }
+        val provider1 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 2L
+            }
+        val provider2 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { migrateUserId(namespace, oldUserId, newUserId) } returns 3L
+            }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))
 
         val result = runBlocking { redactor.migrateUserId(namespace, oldUserId, newUserId) }
@@ -52,12 +54,14 @@ class AggregatingUserDataRedactorTest {
 
     @Test
     fun `deleteByUserId sums records affected across every provider`() {
-        val provider1 = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } returns 1L
-        }
-        val provider2 = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } returns 4L
-        }
+        val provider1 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } returns 1L
+            }
+        val provider2 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } returns 4L
+            }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
@@ -69,12 +73,14 @@ class AggregatingUserDataRedactorTest {
     @Test
     fun `a failing provider does not prevent other providers from running`() {
         val failure = IllegalStateException("boom")
-        val failingProvider = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } throws failure
-        }
-        val succeedingProvider = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } returns 7L
-        }
+        val failingProvider =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } throws failure
+            }
+        val succeedingProvider =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } returns 7L
+            }
         val redactor = AggregatingUserDataRedactor(listOf(failingProvider, succeedingProvider))
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
@@ -91,12 +97,14 @@ class AggregatingUserDataRedactorTest {
     fun `every provider failing is reported without throwing`() {
         val failure1 = IllegalStateException("boom 1")
         val failure2 = IllegalStateException("boom 2")
-        val provider1 = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } throws failure1
-        }
-        val provider2 = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } throws failure2
-        }
+        val provider1 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } throws failure1
+            }
+        val provider2 =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } throws failure2
+            }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))
 
         val result = runBlocking { redactor.deleteByUserId(namespace, userId) }
@@ -118,9 +126,10 @@ class AggregatingUserDataRedactorTest {
 
     @Test
     fun `cancellation is never caught and propagates immediately`() {
-        val cancelledProvider = mockk<UserDataRedactionProvider> {
-            coEvery { deleteByUserId(namespace, userId) } throws CancellationException("cancelled")
-        }
+        val cancelledProvider =
+            mockk<UserDataRedactionProvider> {
+                coEvery { deleteByUserId(namespace, userId) } throws CancellationException("cancelled")
+            }
         // this provider should never run: the cancellation from the first provider must
         // abort the aggregation instead of being treated as a regular failure
         val neverCalledProvider = mockk<UserDataRedactionProvider>()

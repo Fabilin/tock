@@ -93,8 +93,11 @@ val botMongoModule =
         bind<MetricDAO>() with provider { MetricMongoDAO }
         bind<EvaluationSampleDAO>() with provider { EvaluationSampleMongoDAO }
         bind<EvaluationDAO>() with provider { EvaluationMongoDAO }
-        bind<UserDataRedactor>() with singleton { LockedUserDataRedactor(
-            delegate = AggregatingUserDataRedactor(),
-            userLock = instance(),
-        ) }
+        bind<UserDataRedactor>() with
+            singleton {
+                LockedUserDataRedactor(
+                    delegate = AggregatingUserDataRedactor(),
+                    userLock = instance(),
+                )
+            }
     }

@@ -49,7 +49,11 @@ interface UserLock {
      * @throws LockAcquisitionException when the lock cannot be acquired after a configurable amount of attempts
      * @throws LockLostException if the lock is lost mid-operation
      */
-    suspend fun <T> withLock(userId: String, abortOnLockLoss: Boolean = true, op: suspend () -> T): T
+    suspend fun <T> withLock(
+        userId: String,
+        abortOnLockLoss: Boolean = true,
+        op: suspend () -> T,
+    ): T
 
     suspend fun releaseLock(userId: String)
 }

@@ -24,7 +24,10 @@ internal interface ChannelDAO {
         handler: ChannelEvent.Handler,
     )
 
-    fun updateRecipientId(oldRecipientId: String, newRecipientId: String): Long
+    fun updateRecipientId(
+        oldRecipientId: String,
+        newRecipientId: String,
+    ): Long
 
     fun deleteByRecipientId(recipientId: String): Long
 

@@ -28,14 +28,21 @@ interface UserDataRedactor {
      *
      * @return the outcome of the operation, see [RedactionResult]
      */
-    suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): RedactionResult
+    suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): RedactionResult
 
     /**
      * Deletes all personal data linked to a userId
      *
      * @return the outcome of the operation, see [RedactionResult]
      */
-    suspend fun deleteByUserId(namespace: String, userId: String): RedactionResult
+    suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): RedactionResult
 }
 
 /**

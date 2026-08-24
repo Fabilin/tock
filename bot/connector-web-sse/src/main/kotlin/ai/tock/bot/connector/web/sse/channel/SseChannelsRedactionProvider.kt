@@ -23,11 +23,18 @@ import ai.tock.shared.service.UserDataRedactionProvider
 class SseChannelsRedactionProvider : UserDataRedactionProvider {
     private val channels: SseChannels get() = injector.provide()
 
-    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): Long {
+    override suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): Long {
         return channels.migrate(appId = null, oldUserId, newUserId)
     }
 
-    override suspend fun deleteByUserId(namespace: String, userId: String): Long {
+    override suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): Long {
         return channels.deletePersistedEvents(userId)
     }
 }

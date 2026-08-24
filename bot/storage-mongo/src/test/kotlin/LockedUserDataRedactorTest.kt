@@ -18,7 +18,6 @@ package ai.tock.bot.mongo
 
 import ai.tock.bot.engine.user.LockLostException
 import ai.tock.bot.engine.user.UserLock
-import ai.tock.shared.service.RedactionFailure
 import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactor
 import io.mockk.coEvery
@@ -103,9 +102,10 @@ class LockedUserDataRedactorTest {
         val failure = IllegalStateException("boom")
         coEvery { delegate.deleteByUserId(namespace, userId) } throws failure
 
-        val thrown = assertFailsWith<IllegalStateException> {
-            runBlocking { redactor.deleteByUserId(namespace, userId) }
-        }
+        val thrown =
+            assertFailsWith<IllegalStateException> {
+                runBlocking { redactor.deleteByUserId(namespace, userId) }
+            }
         assertEquals(failure, thrown)
     }
 

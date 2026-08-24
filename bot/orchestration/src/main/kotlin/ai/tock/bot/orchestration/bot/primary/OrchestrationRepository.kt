@@ -54,7 +54,10 @@ interface OrchestrationRepository {
 
     fun end(playerId: PlayerId)
 
-    fun updateUserId(oldPlayerId: PlayerId, newPlayerId: PlayerId): Long
+    fun updateUserId(
+        oldPlayerId: PlayerId,
+        newPlayerId: PlayerId,
+    ): Long
 
     fun deleteByUserId(playerId: PlayerId): Long
 }
@@ -106,7 +109,10 @@ object MongoOrchestrationRepository : OrchestrationRepository {
         )
     }
 
-    override fun updateUserId(oldPlayerId: PlayerId, newPlayerId: PlayerId): Long {
+    override fun updateUserId(
+        oldPlayerId: PlayerId,
+        newPlayerId: PlayerId,
+    ): Long {
         val orchestrations =
             col.find(
                 bsonEq("playerId.id", oldPlayerId.id),
@@ -132,6 +138,8 @@ object MongoOrchestrationRepository : OrchestrationRepository {
             bsonEq("playerId.id", playerId.id),
         ).deletedCount
 
-    private fun PlayerId.migrateIfMatches(oldPlayerId: PlayerId, newPlayerId: PlayerId): PlayerId =
-        if (this == oldPlayerId) newPlayerId else this
+    private fun PlayerId.migrateIfMatches(
+        oldPlayerId: PlayerId,
+        newPlayerId: PlayerId,
+    ): PlayerId = if (this == oldPlayerId) newPlayerId else this
 }

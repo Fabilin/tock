@@ -36,17 +36,22 @@ class AggregatingUserDataRedactor(
 ) : UserDataRedactor {
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): RedactionResult {
+    override suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): RedactionResult {
         return runOnEachProvider { it.migrateUserId(namespace, oldUserId, newUserId) }
     }
 
-    override suspend fun deleteByUserId(namespace: String, userId: String): RedactionResult {
+    override suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): RedactionResult {
         return runOnEachProvider { it.deleteByUserId(namespace, userId) }
     }
 
-    private suspend fun runOnEachProvider(
-        operation: suspend (UserDataRedactionProvider) -> Long,
-    ): RedactionResult {
+    private suspend fun runOnEachProvider(operation: suspend (UserDataRedactionProvider) -> Long): RedactionResult {
         var total = 0L
         val failures = mutableListOf<RedactionFailure>()
         for (delegate in delegates) {

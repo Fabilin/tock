@@ -32,7 +32,6 @@ import ai.tock.bot.engine.event.TypingOnEvent
 import ai.tock.bot.engine.user.LockAcquisitionException
 import ai.tock.bot.engine.user.PlayerId
 import ai.tock.bot.engine.user.UserLock
-import ai.tock.bot.engine.user.UserLockException
 import ai.tock.bot.engine.user.UserPreferences
 import ai.tock.bot.engine.user.UserTimeline
 import ai.tock.bot.engine.user.UserTimelineDAO

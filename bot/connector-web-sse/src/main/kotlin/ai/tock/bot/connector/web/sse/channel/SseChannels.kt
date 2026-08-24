@@ -59,7 +59,11 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         return SseChannel(appId, UUID.randomUUID(), userId, onAction).also(channels::add)
     }
 
-    fun migrate(appId: String?, oldUserId: String, newUserId: String): Long {
+    fun migrate(
+        appId: String?,
+        oldUserId: String,
+        newUserId: String,
+    ): Long {
         if (oldUserId == newUserId) {
             return 0
         }

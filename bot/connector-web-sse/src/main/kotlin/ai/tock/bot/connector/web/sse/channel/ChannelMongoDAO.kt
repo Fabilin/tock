@@ -136,7 +136,10 @@ internal object ChannelMongoDAO : ChannelDAO {
         }
     }
 
-    override fun updateRecipientId(oldRecipientId: String, newRecipientId: String): Long {
+    override fun updateRecipientId(
+        oldRecipientId: String,
+        newRecipientId: String,
+    ): Long {
         require(oldRecipientId.encodedSize() == newRecipientId.encodedSize()) {
             "SSE message recipient IDs must have the same UTF-8 byte length to migrate capped queue events"
         }

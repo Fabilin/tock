@@ -29,7 +29,11 @@ interface UserDataRedactionProvider {
      *
      * @return the number of records affected by this operation
      */
-    suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): Long
+    suspend fun migrateUserId(
+        namespace: String,
+        oldUserId: String,
+        newUserId: String,
+    ): Long
 
     /**
      * Deletes all personal data linked to a userId
@@ -38,5 +42,8 @@ interface UserDataRedactionProvider {
      *
      * @return the number of records affected by this operation
      */
-    suspend fun deleteByUserId(namespace: String, userId: String): Long
+    suspend fun deleteByUserId(
+        namespace: String,
+        userId: String,
+    ): Long
 }
