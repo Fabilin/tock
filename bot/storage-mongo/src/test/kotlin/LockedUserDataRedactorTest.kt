@@ -56,10 +56,34 @@ class LockedUserDataRedactorTest {
 
         assertEquals(expected, result)
         coVerifyOrder {
-            userLock.withLock<RedactionResult>(oldUserId, any(), any())
             userLock.withLock<RedactionResult>(newUserId, any(), any())
+            userLock.withLock<RedactionResult>(oldUserId, any(), any())
             delegate.migrateUserId(namespace, oldUserId, newUserId)
         }
+    }
+
+    @Test
+    fun `migrateUserId locks user ids in a deterministic order`() {
+        val expected = RedactionResult(recordsAffected = 3L)
+        coEvery { delegate.migrateUserId(namespace, "z-user", "a-user") } returns expected
+
+        val result = runBlocking { redactor.migrateUserId(namespace, "z-user", "a-user") }
+
+        assertEquals(expected, result)
+        coVerifyOrder {
+            userLock.withLock<RedactionResult>("a-user", any(), any())
+            userLock.withLock<RedactionResult>("z-user", any(), any())
+            delegate.migrateUserId(namespace, "z-user", "a-user")
+        }
+    }
+
+    @Test
+    fun `migrateUserId is a no-op when both user ids are identical`() {
+        val result = runBlocking { redactor.migrateUserId(namespace, userId, userId) }
+
+        assertEquals(RedactionResult(recordsAffected = 0), result)
+        coVerify(exactly = 0) { userLock.withLock<RedactionResult>(any(), any(), any()) }
+        coVerify(exactly = 0) { delegate.migrateUserId(any(), any(), any()) }
     }
 
     @Test

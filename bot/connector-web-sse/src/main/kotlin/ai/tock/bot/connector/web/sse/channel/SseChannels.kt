@@ -60,16 +60,19 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
     }
 
     fun migrate(appId: String?, oldUserId: String, newUserId: String): Boolean {
-        var updated = false
-        channelsByUser[oldUserId]?.replaceAll {
-            if (appId == null || it.appId == appId) {
-                updated = true
-                it.copy(userId = newUserId)
-            } else {
-                it
-            }
+        val oldChannels = channelsByUser[oldUserId] ?: return false
+        val channelsToMigrate = oldChannels.filterTo(mutableSetOf()) { appId == null || it.appId == appId }
+        if (channelsToMigrate.isEmpty()) {
+            return false
         }
-        return updated
+
+        oldChannels.removeAll(channelsToMigrate)
+        channelsByUser.getOrPut(newUserId) { CopyOnWriteArrayList() }
+            .addAll(channelsToMigrate.map { it.copy(userId = newUserId) })
+        if (oldChannels.isEmpty()) {
+            channelsByUser.remove(oldUserId, oldChannels)
+        }
+        return true
     }
 
     fun sendMissedEvents(channel: SseChannel) {
@@ -79,8 +82,9 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
     }
 
     fun unregister(channel: SseChannel) {
-        channelsByUser[channel.userId]?.removeIf {
-            it.uuid == channel.uuid
+        channelsByUser.entries.removeIf { (_, channels) ->
+            channels.removeIf { it.uuid == channel.uuid }
+            channels.isEmpty()
         }
     }
 

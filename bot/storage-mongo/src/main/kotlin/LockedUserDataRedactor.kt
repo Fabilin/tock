@@ -20,10 +20,15 @@ import ai.tock.bot.engine.user.UserLock
 import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactor
 
-class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserLock): UserDataRedactor {
+class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserLock) : UserDataRedactor {
     override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): RedactionResult {
-        return userLock.withLock(oldUserId) {
-            userLock.withLock(newUserId) {
+        if (oldUserId == newUserId) return RedactionResult(recordsAffected = 0)
+
+        // Sort our identifiers to avoid concurrent opposite migrations causing a deadlock (unlikely but cheap to avoid)
+        val firstId = minOf(oldUserId, newUserId)
+        val secondId = maxOf(oldUserId, newUserId)
+        return userLock.withLock(firstId) {
+            userLock.withLock(secondId) {
                 delegate.migrateUserId(namespace, oldUserId, newUserId)
             }
         }

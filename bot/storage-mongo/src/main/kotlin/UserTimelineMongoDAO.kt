@@ -371,8 +371,17 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         oldPlayerId: PlayerId,
         newPlayerId: PlayerId,
     ): Boolean {
-        val timelineId = timelineId(oldPlayerId.id, namespace)
-        val timelineResult = userTimelineCol.updateOneById(timelineId, setValue(PlayerId, newPlayerId))
+        val oldTimelineId = timelineId(oldPlayerId.id, namespace)
+        val newTimelineId = timelineId(newPlayerId.id, namespace)
+        val oldTimeline = userTimelineCol.findOneById(oldTimelineId)
+        val timelineUpdated =
+            oldTimeline?.let {
+                userTimelineCol.save(it.copy(_id = newTimelineId.toId(), playerId = newPlayerId))
+                if (oldTimelineId != newTimelineId) {
+                    userTimelineCol.deleteOneById(oldTimelineId)
+                }
+                true
+            } ?: false
         dialogCol.updateMany(
             and(
                 Namespace eq namespace,
@@ -397,7 +406,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 upsert(),
             )
         }
-        return timelineResult.modifiedCount > 0 || dialogResult.modifiedCount > 0
+        return timelineUpdated || dialogResult.modifiedCount > 0
     }
 
     private suspend fun saveConnectorMessage(

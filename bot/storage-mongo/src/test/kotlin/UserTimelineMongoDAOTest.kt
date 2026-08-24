@@ -97,10 +97,11 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
         runBlocking {
             val id = PlayerId("id", PlayerType.user)
             val u = UserTimeline(id, dialogs = mutableListOf(Dialog(setOf(id))))
+            u.userPreferences.firstName = "Ada"
             UserTimelineMongoDAO.save(u, "namespace")
             println(UserTimelineMongoDAO.loadWithLastValidDialog("namespace", id, null) { error("no story provided") })
 
-            val newId = PlayerId("id", PlayerType.user, "a")
+            val newId = PlayerId("new-id", PlayerType.user, "a")
             UserTimelineMongoDAO.updatePlayerId("namespace", id, newId)
             println(UserTimelineMongoDAO.loadWithLastValidDialog("namespace", newId, null) { error("no story provided") })
             assertEquals(
@@ -110,6 +111,10 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
             assertEquals(
                 newId,
                 UserTimelineMongoDAO.loadWithoutDialogs("namespace", newId).playerId,
+            )
+            assertEquals(
+                u.userPreferences,
+                UserTimelineMongoDAO.loadWithoutDialogs("namespace", newId).userPreferences,
             )
         }
 

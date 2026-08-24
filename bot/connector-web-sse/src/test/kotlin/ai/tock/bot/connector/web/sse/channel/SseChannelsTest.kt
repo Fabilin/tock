@@ -104,4 +104,29 @@ internal class SseChannelsTest {
         channels.send(appId, recipientId, message).await()
         verify { channelDaoMock.save(any()) }
     }
+
+    @Test
+    fun `Channels migrate active connections to the new user id`() {
+        val appId = "my-app"
+        val oldUserId = "old-user"
+        val newUserId = "new-user"
+        val message = botResponse("Welcome back")
+        val responses = mutableListOf<WebConnectorResponseContract>()
+        every { channelDaoMock.save(any()) } just runs
+        val channel =
+            channels.register(appId, oldUserId) {
+                responses.add(it)
+                Future.succeededFuture<Unit>()
+            }
+
+        assertEquals(true, channels.migrate(appId, oldUserId, newUserId))
+        channels.send(appId, newUserId, message).await()
+
+        assertEquals(listOf(message), responses)
+        verify(inverse = true) { channelDaoMock.save(any()) }
+
+        channels.unregister(channel)
+        channels.send(appId, newUserId, message).await()
+        verify { channelDaoMock.save(any()) }
+    }
 }
