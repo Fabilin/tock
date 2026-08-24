@@ -59,11 +59,17 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         return SseChannel(appId, UUID.randomUUID(), userId, onAction).also(channels::add)
     }
 
-    fun migrate(appId: String?, oldUserId: String, newUserId: String): Boolean {
-        val oldChannels = channelsByUser[oldUserId] ?: return false
+    fun migrate(appId: String?, oldUserId: String, newUserId: String): Long {
+        if (oldUserId == newUserId) {
+            return 0
+        }
+
+        val databaseResult = channelDAO.updateRecipientId(oldUserId, newUserId)
+
+        val oldChannels = channelsByUser[oldUserId] ?: return databaseResult
         val channelsToMigrate = oldChannels.filterTo(mutableSetOf()) { appId == null || it.appId == appId }
         if (channelsToMigrate.isEmpty()) {
-            return false
+            return databaseResult
         }
 
         oldChannels.removeAll(channelsToMigrate)
@@ -72,8 +78,11 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         if (oldChannels.isEmpty()) {
             channelsByUser.remove(oldUserId, oldChannels)
         }
-        return true
+
+        return databaseResult + channelsToMigrate.size
     }
+
+    fun deletePersistedEvents(userId: String): Long = channelDAO.deleteByRecipientId(userId)
 
     fun sendMissedEvents(channel: SseChannel) {
         channelDAO.handleMissedEvents(channel.appId, channel.userId) { (_, _, response) ->

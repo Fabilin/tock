@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package ai.tock.bot.connector.web.sse.channel
+package ai.tock.bot.orchestration.bot.primary
 
-import ai.tock.shared.injector
-import ai.tock.shared.provide
+import ai.tock.bot.engine.user.PlayerId
 import ai.tock.shared.service.UserDataRedactionProvider
 
-class SseChannelsRedactionProvider : UserDataRedactionProvider {
-    private val channels: SseChannels get() = injector.provide()
+class OrchestrationUserDataRedactionProvider(
+    private val repository: OrchestrationRepository = MongoOrchestrationRepository,
+) : UserDataRedactionProvider {
+    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): Long =
+        repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
 
-    override suspend fun migrateUserId(namespace: String, oldUserId: String, newUserId: String): Long {
-        return channels.migrate(appId = null, oldUserId, newUserId)
-    }
-
-    override suspend fun deleteByUserId(namespace: String, userId: String): Long {
-        return channels.deletePersistedEvents(userId)
-    }
+    override suspend fun deleteByUserId(namespace: String, userId: String): Long =
+        repository.deleteByUserId(PlayerId(userId))
 }
