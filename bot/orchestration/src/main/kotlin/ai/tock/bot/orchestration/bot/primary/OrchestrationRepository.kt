@@ -56,7 +56,9 @@ interface OrchestrationRepository {
 object MongoOrchestrationRepository : OrchestrationRepository {
     private val col: MongoCollection<Orchestration> by lazy {
 
-        injector.provide<MongoDatabase>(TOCK_BOT_DATABASE).getCollection<Orchestration>()
+        injector
+            .provide<MongoDatabase>(TOCK_BOT_DATABASE)
+            .getCollection<Orchestration>()
             .apply {
                 ensureIndex(Orchestration::playerId)
                 ensureIndex(Orchestration::playerId, Orchestration::status)

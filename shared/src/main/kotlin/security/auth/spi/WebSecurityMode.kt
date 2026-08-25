@@ -32,8 +32,6 @@ enum class WebSecurityMode {
     ;
 
     companion object {
-        fun findByName(mode: String): WebSecurityMode? {
-            return WebSecurityMode.entries.firstOrNull { it.name == mode }
-        }
+        fun findByName(mode: String): WebSecurityMode? = WebSecurityMode.entries.firstOrNull { it.name == mode }
     }
 }

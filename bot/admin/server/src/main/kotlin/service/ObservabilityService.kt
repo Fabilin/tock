@@ -45,9 +45,7 @@ object ObservabilityService {
     fun getObservabilityConfiguration(
         namespace: String,
         botId: String,
-    ): BotObservabilityConfiguration? {
-        return observabilityConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
-    }
+    ): BotObservabilityConfiguration? = observabilityConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
 
     /**
      * Get the Observability configuration
@@ -59,9 +57,7 @@ object ObservabilityService {
         namespace: String,
         botId: String,
         enabled: Boolean,
-    ): BotObservabilityConfiguration? {
-        return observabilityConfigurationDAO.findByNamespaceAndBotIdAndEnabled(namespace, botId, enabled)
-    }
+    ): BotObservabilityConfiguration? = observabilityConfigurationDAO.findByNamespaceAndBotIdAndEnabled(namespace, botId, enabled)
 
     /**
      * Deleting the Observability Configuration

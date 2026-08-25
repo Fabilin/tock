@@ -112,7 +112,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Business Rules' configuration..." }
-                    BusinessRulesService.getBusinessRulesConfiguration(app.namespace, app.name)
+                    BusinessRulesService
+                        .getBusinessRulesConfiguration(app.namespace, app.name)
                         ?.let { BotBusinessRulesConfigurationDTO(it) }
                 }
             }
@@ -136,7 +137,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Sentence Generation' configuration..." }
-                    SentenceGenerationService.getSentenceGenerationConfiguration(app.namespace, app.name)
+                    SentenceGenerationService
+                        .getSentenceGenerationConfiguration(app.namespace, app.name)
                         ?.let { BotSentenceGenerationConfigurationDTO(it) }
                 }
             }
@@ -147,7 +149,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Sentence Generation' configuration info..." }
-                    SentenceGenerationService.getSentenceGenerationConfiguration(app.namespace, app.name)
+                    SentenceGenerationService
+                        .getSentenceGenerationConfiguration(app.namespace, app.name)
                         ?.let { BotSentenceGenerationInfoDTO(it) } ?: BotSentenceGenerationInfoDTO()
                 }
             }
@@ -181,7 +184,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Vector Store' configuration..." }
-                    VectorStoreService.getVectorStoreConfiguration(app.namespace, app.name)
+                    VectorStoreService
+                        .getVectorStoreConfiguration(app.namespace, app.name)
                         ?.let { BotVectorStoreConfigurationDTO(it) }
                 }
             }
@@ -215,7 +219,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Observability' configuration..." }
-                    ObservabilityService.getObservabilityConfiguration(app.namespace, app.name)
+                    ObservabilityService
+                        .getObservabilityConfiguration(app.namespace, app.name)
                         ?.let { BotObservabilityConfigurationDTO(it) }
                 }
             }
@@ -249,7 +254,8 @@ class GenAIVerticle : AbstractNamespaceRetriever() {
             ) { context: RoutingContext ->
                 checkNamespaceAndExecute(context, ::currentContextApp) { app ->
                     logger.info { "Retrieving 'Document Compressor' configuration..." }
-                    DocumentCompressorService.getDocumentCompressorConfiguration(app.namespace, app.name)
+                    DocumentCompressorService
+                        .getDocumentCompressorConfiguration(app.namespace, app.name)
                         ?.let { BotDocumentCompressorConfigurationDTO(it) }
                 }
             }

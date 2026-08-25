@@ -103,15 +103,16 @@ internal object ChannelMongoDAO : ChannelDAO {
         recipientId: String,
         handler: ChannelEvent.Handler,
     ) {
-        webChannelResponseCol.find(
-            and(
-                ChannelEvent::appId eq appId,
-                ChannelEvent::recipientId eq recipientId,
-                ChannelEvent::status eq ChannelEvent.Status.ENQUEUED,
-            ),
-        ).forEach { event ->
-            process(event, handler)
-        }
+        webChannelResponseCol
+            .find(
+                and(
+                    ChannelEvent::appId eq appId,
+                    ChannelEvent::recipientId eq recipientId,
+                    ChannelEvent::status eq ChannelEvent.Status.ENQUEUED,
+                ),
+            ).forEach { event ->
+                process(event, handler)
+            }
     }
 
     private fun process(

@@ -64,7 +64,8 @@ class WebSecurityCookiesHandler : WebSecurityHandler {
             val cookieValue = tockUserId ?: UUID.randomUUID().toString()
 
             val cookie =
-                Cookie.cookie(TOCK_USER_ID, cookieValue)
+                Cookie
+                    .cookie(TOCK_USER_ID, cookieValue)
                     .setHttpOnly(true)
                     .setSecure(true)
                     .setSameSite(CookieSameSite.NONE) // bot backend may not be on the same domain as the website frontend

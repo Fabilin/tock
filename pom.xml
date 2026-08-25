@@ -106,7 +106,7 @@
         <plugin.deploy>3.1.4</plugin.deploy>
         <plugin.gitid>4.9.10</plugin.gitid>
         <plugin.ant>3.2.0</plugin.ant>
-        <plugin.ktlint>0.51.0-FINAL</plugin.ktlint>
+        <plugin.ktlint>1.8.0</plugin.ktlint>
 
 
         <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
@@ -921,8 +921,8 @@
                 </executions>
                 <dependencies>
                     <dependency>
-                        <groupId>com.pinterest</groupId>
-                        <artifactId>ktlint</artifactId>
+                        <groupId>com.pinterest.ktlint</groupId>
+                        <artifactId>ktlint-cli</artifactId>
                         <version>${plugin.ktlint}</version>
                     </dependency>
                 </dependencies>

@@ -35,7 +35,7 @@ object LLMSettingMapper {
     fun toDTO(entity: LLMSetting): LLMSettingDTO =
         with(entity) {
             when (this) {
-                is OpenAILLMSetting ->
+                is OpenAILLMSetting -> {
                     OpenAILLMSetting(
                         apiKey = SecurityUtils.fetchSecretKeyValue(apiKey),
                         temperature = temperature,
@@ -43,8 +43,9 @@ object LLMSettingMapper {
                         model = model,
                         baseUrl = baseUrl,
                     )
+                }
 
-                is AzureOpenAILLMSetting ->
+                is AzureOpenAILLMSetting -> {
                     AzureOpenAILLMSetting(
                         apiKey = SecurityUtils.fetchSecretKeyValue(apiKey),
                         temperature = temperature,
@@ -54,16 +55,19 @@ object LLMSettingMapper {
                         model = model,
                         apiVersion = apiVersion,
                     )
+                }
 
-                is OllamaLLMSetting ->
+                is OllamaLLMSetting -> {
                     OllamaLLMSetting(
                         temperature = temperature,
                         model = model,
                         baseUrl = baseUrl,
                     )
+                }
 
-                else ->
+                else -> {
                     throw IllegalArgumentException("Unsupported LLM Setting")
+                }
             }
         }
 
@@ -85,7 +89,7 @@ object LLMSettingMapper {
     ): LLMSetting =
         with(dto) {
             when (this) {
-                is OpenAILLMSetting ->
+                is OpenAILLMSetting -> {
                     OpenAILLMSetting(
                         apiKey = SecurityUtils.createSecretKey(namespace, botId, feature, apiKey, rawByForce),
                         temperature = temperature,
@@ -93,8 +97,9 @@ object LLMSettingMapper {
                         model = model,
                         baseUrl = baseUrl,
                     )
+                }
 
-                is AzureOpenAILLMSetting ->
+                is AzureOpenAILLMSetting -> {
                     AzureOpenAILLMSetting(
                         SecurityUtils.createSecretKey(namespace, botId, feature, apiKey, rawByForce),
                         temperature = temperature,
@@ -104,15 +109,19 @@ object LLMSettingMapper {
                         apiVersion = apiVersion,
                         model = model,
                     )
+                }
 
-                is OllamaLLMSetting ->
+                is OllamaLLMSetting -> {
                     OllamaLLMSetting(
                         temperature = temperature,
                         model = model,
                         baseUrl = baseUrl,
                     )
-                else ->
+                }
+
+                else -> {
                     throw IllegalArgumentException("Unsupported LLM Setting")
+                }
             }
         }
 }
