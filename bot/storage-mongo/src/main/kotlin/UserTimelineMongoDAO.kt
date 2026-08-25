@@ -1384,8 +1384,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                                 .append("date", "\$_id.date")
                                 .append("timezone", "Europe/Paris"),
                         ),
-                    )
-                    .append("total", "\$total"),
+                    ).append("total", "\$total"),
             ),
         )
 

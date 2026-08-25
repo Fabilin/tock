@@ -80,13 +80,17 @@ object EvaluationService {
         createdBy: String,
     ): EvaluationSampleDTO =
         when {
-            request.dialogInfo != null && request.datasetRunInfo == null ->
+            request.dialogInfo != null && request.datasetRunInfo == null -> {
                 createEvaluationSampleFromDialogs(namespace, botId, request, request.dialogInfo, createdBy)
+            }
 
-            request.datasetRunInfo != null && request.dialogInfo == null ->
+            request.datasetRunInfo != null && request.dialogInfo == null -> {
                 createEvaluationSampleFromRuns(namespace, botId, request, request.datasetRunInfo, createdBy)
+            }
 
-            else -> throw BadRequestException("Exactly one of dialogInfo or datasetRunInfo is required")
+            else -> {
+                throw BadRequestException("Exactly one of dialogInfo or datasetRunInfo is required")
+            }
         }
 
     private fun createEvaluationSampleFromDialogs(

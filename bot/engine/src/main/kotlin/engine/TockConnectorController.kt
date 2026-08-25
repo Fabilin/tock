@@ -138,7 +138,6 @@ internal class TockConnectorController(
             if (!botDefinition.eventListener.listenEvent(this, data, event)) {
                 when (event) {
                     is Action -> handleAction(event, 0, data)
-
                     else -> callback.eventSkipped(event)
                 }
             } else {
@@ -270,13 +269,14 @@ internal class TockConnectorController(
         serviceIdentifier: String,
         installer: CoroutineRouterSupport.(Router) -> Unit,
     ) {
-        verticle.registerServices(serviceIdentifier) { router ->
-            // healthcheck
-            router.get("$serviceIdentifier/healthcheck").handler {
-                it.response().end()
-            }
-            installer(router)
-        }.also { serviceInstallers.add(it) }
+        verticle
+            .registerServices(serviceIdentifier) { router ->
+                // healthcheck
+                router.get("$serviceIdentifier/healthcheck").handler {
+                    it.response().end()
+                }
+                installer(router)
+            }.also { serviceInstallers.add(it) }
     }
 
     override fun unregisterServices() {
@@ -316,16 +316,12 @@ internal class TockConnectorController(
     fun loadProfile(
         data: ConnectorData,
         playerId: PlayerId,
-    ): UserPreferences? {
-        return connector.loadProfile(data.callback, playerId)
-    }
+    ): UserPreferences? = connector.loadProfile(data.callback, playerId)
 
     fun refreshProfile(
         data: ConnectorData,
         playerId: PlayerId,
-    ): UserPreferences? {
-        return connector.refreshProfile(data.callback, playerId)
-    }
+    ): UserPreferences? = connector.refreshProfile(data.callback, playerId)
 
     fun startTypingInAnswerTo(
         action: Action,

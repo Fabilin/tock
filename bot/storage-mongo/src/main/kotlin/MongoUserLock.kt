@@ -48,7 +48,11 @@ import java.util.concurrent.TimeUnit.HOURS
 internal object MongoUserLock : UserLock {
     @Data(internal = true)
     @JacksonData(internal = true)
-    data class UserLock(val _id: Id<UserLock>, val locked: Boolean = true, val date: Instant = now())
+    data class UserLock(
+        val _id: Id<UserLock>,
+        val locked: Boolean = true,
+        val date: Instant = now(),
+    )
 
     private val logger = KotlinLogging.logger {}
 
