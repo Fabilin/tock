@@ -17,6 +17,7 @@
 package ai.tock.shared.service
 
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -77,6 +78,7 @@ class AggregatingUserDataRedactorTest {
         val failure = IllegalStateException("boom")
         val failingProvider =
             mockk<UserDataRedactionProvider> {
+                every { name } returns "failing_provider"
                 coEvery { deleteByUserId(namespace, userId) } throws failure
             }
         val succeedingProvider =
@@ -101,10 +103,12 @@ class AggregatingUserDataRedactorTest {
         val failure2 = IllegalStateException("boom 2")
         val provider1 =
             mockk<UserDataRedactionProvider> {
+                every { name } returns "failing_1"
                 coEvery { deleteByUserId(namespace, userId) } throws failure1
             }
         val provider2 =
             mockk<UserDataRedactionProvider> {
+                every { name } returns "failing_2"
                 coEvery { deleteByUserId(namespace, userId) } throws failure2
             }
         val redactor = AggregatingUserDataRedactor(listOf(provider1, provider2))

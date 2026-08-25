@@ -77,7 +77,7 @@ data class RedactionResult(
 }
 
 /**
- * A failure raised by a single [UserDataRedactionProvider] while performing a redaction operation.
+ * A failure raised by a [UserDataRedactionProvider] while performing a redaction operation.
  *
  * @property providerName identifies the provider that failed, typically its class name
  * @property error the exception raised by the provider

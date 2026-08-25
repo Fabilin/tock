@@ -58,7 +58,9 @@ class AggregatingUserDataRedactor(
             currentCoroutineContext().ensureActive()
             try {
                 val result = operation(delegate)
-                recordsAffected += result.recordsAffected
+                for ((key, value) in result.recordsAffected) {
+                    recordsAffected.merge(key, value, Long::plus)
+                }
                 failures += result.failures
             } catch (e: CancellationException) {
                 throw e // cancellation should never be caught
