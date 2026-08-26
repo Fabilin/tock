@@ -332,8 +332,8 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
                     endDate: ZonedDateTime,
                     action1Text: String,
                     action2Text: String,
-                ): Dialog {
-                    return Dialog(
+                ): Dialog =
+                    Dialog(
                         playerIds = setOf(userId, botPlayerId),
                         stories =
                             mutableListOf(
@@ -348,7 +348,6 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
                                 ),
                             ),
                     )
-                }
 
                 val dialogA = createDialogWithTwoActions(dialogAStart, dialogAEnd, "action1", "action2")
                 val dialogB = createDialogWithTwoActions(dialogBStart, dialogBEnd, "action3", "action4")
@@ -487,8 +486,8 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
                     }
                 val storyDef = StoryDefinitionBase("test_story", storyHandler)
 
-                fun createSingleActionDialog(actionDate: ZonedDateTime): Dialog {
-                    return Dialog(
+                fun createSingleActionDialog(actionDate: ZonedDateTime): Dialog =
+                    Dialog(
                         playerIds = setOf(userId, botPlayerId),
                         stories =
                             mutableListOf(
@@ -512,7 +511,6 @@ internal class UserTimelineMongoDAOTest : AbstractTest() {
                                 ),
                             ),
                     )
-                }
 
                 val dialogExact = createSingleActionDialog(dialogAtExactDate)
                 val dialogBefore = createSingleActionDialog(dialogBeforeDate)

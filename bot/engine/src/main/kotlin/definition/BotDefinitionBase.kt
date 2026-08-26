@@ -115,13 +115,12 @@ open class BotDefinitionBase(
         /**
          * Returns a (potential) keyword from the [BotBus].
          */
-        fun getKeyword(bus: BotBus): String? {
-            return if (bus.action is SendSentence) {
+        fun getKeyword(bus: BotBus): String? =
+            if (bus.action is SendSentence) {
                 (bus.action as SendSentence).stringText
             } else {
                 null
             }
-        }
 
         /**
          * The default handler used to handle test context initialization.
@@ -262,7 +261,5 @@ open class BotDefinitionBase(
      */
     override val defaultRagExcludedAnswer: I18nLabelValue get() = i18n("Sorry, I can't answer your question (Topic not covered)")
 
-    override fun toString(): String {
-        return botId
-    }
+    override fun toString(): String = botId
 }

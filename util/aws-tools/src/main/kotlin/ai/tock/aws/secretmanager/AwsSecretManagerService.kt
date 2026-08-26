@@ -64,7 +64,8 @@ class AwsSecretManagerService : SecretManagerService {
     private val logger: KLogger = KotlinLogging.logger { }
     private val lockOnSecretCache: Lock = ReentrantLock()
     private var secretsCache: Cache<String, String> =
-        Caffeine.newBuilder()
+        Caffeine
+            .newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(100)
             .build()
@@ -115,8 +116,10 @@ class AwsSecretManagerService : SecretManagerService {
             getTemporaryCredentials().let {
                 val awsSessionCredentials =
                     BasicSessionCredentials(it.accessKeyId, it.secretAccessKey, it.sessionToken)
-                return AWSSecretsManagerClientBuilder.standard()
-                    .withCredentials(AWSStaticCredentialsProvider(awsSessionCredentials)).build()
+                return AWSSecretsManagerClientBuilder
+                    .standard()
+                    .withCredentials(AWSStaticCredentialsProvider(awsSessionCredentials))
+                    .build()
             }
         } else {
             return AWSSecretsManagerClientBuilder.standard().build()

@@ -31,13 +31,13 @@ class UserTimelineRedactionProvider : UserDataRedactionProvider {
         oldUserId: String,
         newUserId: String,
     ) = RedactionResult(
-        userTimelineDAO.updatePlayerId(namespace, PlayerId(oldUserId), PlayerId(newUserId))
+        userTimelineDAO.updatePlayerId(namespace, PlayerId(oldUserId), PlayerId(newUserId)),
     )
 
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
     ) = RedactionResult(
-        userTimelineDAO.remove(namespace, PlayerId(userId), clearLock = false)
+        userTimelineDAO.remove(namespace, PlayerId(userId), clearLock = false),
     )
 }

@@ -56,10 +56,11 @@ internal class SseChannelsTest {
         }
         val responses = mutableListOf<WebConnectorResponseContract>()
         channels.initListeners()
-        channels.register(appId, recipientId) {
-            responses.add(it)
-            Future.succeededFuture<Unit>()
-        }.also(channels::sendMissedEvents)
+        channels
+            .register(appId, recipientId) {
+                responses.add(it)
+                Future.succeededFuture<Unit>()
+            }.also(channels::sendMissedEvents)
         assertEquals(expectedMissedResponses, responses)
         expectedNewResponses.forEach {
             listenerSlot.captured.invoke(ChannelEvent(appId, recipientId, it))

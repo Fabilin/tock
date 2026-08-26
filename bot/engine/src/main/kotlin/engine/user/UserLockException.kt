@@ -16,15 +16,21 @@
 
 package ai.tock.bot.engine.user
 
-open class UserLockException(message: String) : Exception(message)
+open class UserLockException(
+    message: String,
+) : Exception(message)
 
 /**
  * Thrown to indicate that a lock could not be acquired, preventing an operation from executing
  */
-class LockAcquisitionException(message: String) : UserLockException(message)
+class LockAcquisitionException(
+    message: String,
+) : UserLockException(message)
 
 /**
  * Thrown to indicate that a lock's lease was lost to
  * another owner before an operation completes.
  */
-class LockLostException(message: String) : UserLockException(message)
+class LockLostException(
+    message: String,
+) : UserLockException(message)

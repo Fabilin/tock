@@ -63,7 +63,7 @@ data class RedactionResult(
      * @param recordType a short descriptive name for the type of record affected
      * @param affectedCount the number of records successfully affected by this operation
      */
-    constructor(recordType: String, affectedCount: Long): this(mapOf(recordType to affectedCount))
+    constructor(recordType: String, affectedCount: Long) : this(mapOf(recordType to affectedCount))
 
     /** true if every provider completed without error. */
     val isSuccess: Boolean get() = failures.isEmpty()

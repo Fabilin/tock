@@ -44,9 +44,7 @@ object BusinessRulesService {
     fun getBusinessRulesConfiguration(
         namespace: String,
         botId: String,
-    ): BotBusinessRulesConfiguration? {
-        return businessRulesConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
-    }
+    ): BotBusinessRulesConfiguration? = businessRulesConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
 
     /**
      * Save Business Rules configuration.
@@ -101,7 +99,8 @@ object BusinessRulesService {
     private fun BotBusinessRulesConfigurationDTO.withAssignedLexiconGroupIds(existingLexiconGroups: List<BotBusinessRulesLexiconGroup>): BotBusinessRulesConfigurationDTO {
         val providedIds = lexiconGroups.mapNotNull { it.id }
         val duplicatedIds =
-            providedIds.groupingBy { it }
+            providedIds
+                .groupingBy { it }
                 .eachCount()
                 .filterValues { it > 1 }
                 .keys

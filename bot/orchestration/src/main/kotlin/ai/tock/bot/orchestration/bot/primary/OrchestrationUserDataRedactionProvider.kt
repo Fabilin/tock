@@ -20,7 +20,6 @@ import ai.tock.bot.engine.user.PlayerId
 import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactionProvider
 
-
 class OrchestrationUserDataRedactionProvider(
     private val repository: OrchestrationRepository = MongoOrchestrationRepository,
 ) : UserDataRedactionProvider {
@@ -31,7 +30,7 @@ class OrchestrationUserDataRedactionProvider(
         oldUserId: String,
         newUserId: String,
     ) = RedactionResult(
-        repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId))
+        repository.updateUserId(PlayerId(oldUserId), PlayerId(newUserId)),
     )
 
     override suspend fun deleteByUserId(

@@ -66,7 +66,8 @@ class GoogleChatConnector(
                         logger.debug { "message received from Google chat: $body" }
 
                         // answer immediately
-                        context.response()
+                        context
+                            .response()
                             .putHeader("Content-Type", "application/json; charset=UTF-8")
                             .setStatusCode(200)
                             .end("{}")

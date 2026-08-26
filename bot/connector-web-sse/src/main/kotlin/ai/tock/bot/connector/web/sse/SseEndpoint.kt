@@ -61,7 +61,8 @@ class SseEndpoint internal constructor(
         connectorId: String,
         webSecurityHandler: WebSecurityHandler,
     ) {
-        router.get(path)
+        router
+            .get(path)
             .handler(webSecurityHandler)
             .handler { context ->
                 try {

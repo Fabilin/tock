@@ -66,7 +66,12 @@ import kotlin.random.Random
 internal object MongoUserLock : UserLock {
     @Data(internal = true)
     @JacksonData(internal = true)
-    data class UserLock(val _id: Id<UserLock>, val locked: Boolean = true, val date: Instant = now(), val lockId: String? = null)
+    data class UserLock(
+        val _id: Id<UserLock>,
+        val locked: Boolean = true,
+        val date: Instant = now(),
+        val lockId: String? = null,
+    )
 
     private val logger = KotlinLogging.logger {}
 
@@ -101,13 +106,14 @@ internal object MongoUserLock : UserLock {
         }
     private val retry =
         Retry.of("mongo-user-lock", lockRetryConfig).apply {
-            eventPublisher.onRetry { event ->
-                if (event.numberOfRetryAttempts.toLong() == lockAcquireWarnAttempts) {
-                    logger.warn { "still waiting for lock after ${event.numberOfRetryAttempts} attempts - possible stuck lock" }
+            eventPublisher
+                .onRetry { event ->
+                    if (event.numberOfRetryAttempts.toLong() == lockAcquireWarnAttempts) {
+                        logger.warn { "still waiting for lock after ${event.numberOfRetryAttempts} attempts - possible stuck lock" }
+                    }
+                }.onError {
+                    throw LockAcquisitionException("failed to acquire lock after ${it.numberOfRetryAttempts} attempts")
                 }
-            }.onError {
-                throw LockAcquisitionException("failed to acquire lock after ${it.numberOfRetryAttempts} attempts")
-            }
         }
 
     init {
@@ -128,9 +134,7 @@ internal object MongoUserLock : UserLock {
         }
     }
 
-    override suspend fun lock(userId: String): Boolean {
-        return lock(userId, lockId = null)
-    }
+    override suspend fun lock(userId: String): Boolean = lock(userId, lockId = null)
 
     private suspend fun lock(
         userId: String,
@@ -212,15 +216,14 @@ internal object MongoUserLock : UserLock {
     private suspend fun renewLock(
         userId: String,
         lockId: UUID,
-    ): Boolean {
-        return try {
+    ): Boolean =
+        try {
             val query = and(_id eq userId.toId(), UserLock::lockId eq lockId.toString())
             col.updateOne(query, setValue(Date, now())).modifiedCount > 0
         } catch (e: Exception) {
             logger.error(e)
             false
         }
-    }
 
     /**
      * @throws LockAcquisitionException if the lock could not be acquired after [lockMaxAcquireAttempts] attempts.

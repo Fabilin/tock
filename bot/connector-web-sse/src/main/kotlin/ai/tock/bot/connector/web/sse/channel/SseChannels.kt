@@ -23,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class SseChannels(private val channelDAO: ChannelDAO) {
+internal class SseChannels(
+    private val channelDAO: ChannelDAO,
+) {
     private val initialized = AtomicBoolean(false)
     private val channelsByUser = ConcurrentHashMap<String, CopyOnWriteArrayList<SseChannel>>()
 
@@ -40,12 +42,13 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         recipientId: String,
         response: WebConnectorResponseContract,
     ): Future<Boolean> =
-        Future.all(
-            (channelsByUser[recipientId] ?: emptyList()).filter { it.appId == appId }.map { channel ->
-                logger.debug { "call onAction for $channel" }
-                channel.onAction(response)
-            },
-        ).map { futures -> futures.size() > 0 }
+        Future
+            .all(
+                (channelsByUser[recipientId] ?: emptyList()).filter { it.appId == appId }.map { channel ->
+                    logger.debug { "call onAction for $channel" }
+                    channel.onAction(response)
+                },
+            ).map { futures -> futures.size() > 0 }
 
     fun register(
         appId: String,
@@ -77,7 +80,8 @@ internal class SseChannels(private val channelDAO: ChannelDAO) {
         }
 
         oldChannels.removeAll(channelsToMigrate)
-        channelsByUser.getOrPut(newUserId) { CopyOnWriteArrayList() }
+        channelsByUser
+            .getOrPut(newUserId) { CopyOnWriteArrayList() }
             .addAll(channelsToMigrate.map { it.copy(userId = newUserId) })
         if (oldChannels.isEmpty()) {
             channelsByUser.remove(oldUserId, oldChannels)

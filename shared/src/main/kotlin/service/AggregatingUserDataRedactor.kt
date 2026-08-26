@@ -40,16 +40,12 @@ class AggregatingUserDataRedactor(
         namespace: String,
         oldUserId: String,
         newUserId: String,
-    ): RedactionResult {
-        return runOnEachProvider { it.migrateUserId(namespace, oldUserId, newUserId) }
-    }
+    ): RedactionResult = runOnEachProvider { it.migrateUserId(namespace, oldUserId, newUserId) }
 
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): RedactionResult {
-        return runOnEachProvider { it.deleteByUserId(namespace, userId) }
-    }
+    ): RedactionResult = runOnEachProvider { it.deleteByUserId(namespace, userId) }
 
     private suspend fun runOnEachProvider(operation: suspend (UserDataRedactionProvider) -> RedactionResult): RedactionResult {
         val recordsAffected = mutableMapOf<String, Long>()

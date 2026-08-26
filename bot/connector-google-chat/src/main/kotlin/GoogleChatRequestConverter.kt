@@ -27,7 +27,12 @@ internal object GoogleChatRequestConverter {
         applicationId: String,
     ): Event {
         val userId = chatEvent.getAsJsonObject("user").get("name").asString
-        val text = chatEvent.getAsJsonObject("messagePayload").getAsJsonObject("message").get("text").asString
+        val text =
+            chatEvent
+                .getAsJsonObject("messagePayload")
+                .getAsJsonObject("message")
+                .get("text")
+                .asString
 
         val playerId = PlayerId(userId)
         val botId = PlayerId(applicationId, PlayerType.bot)

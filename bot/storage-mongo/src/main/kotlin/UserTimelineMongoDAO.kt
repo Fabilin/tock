@@ -432,8 +432,12 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                     .toList()
                     .asSequence()
                     .filterNot { it._id in dialogIds }
-                    .flatMap { dialog -> dialog.stories.asSequence().flatMap { it.actions.asSequence() }.map { it.id } }
-                    .filter { it in actionIds }
+                    .flatMap { dialog ->
+                        dialog.stories
+                            .asSequence()
+                            .flatMap { it.actions.asSequence() }
+                            .map { it.id }
+                    }.filter { it in actionIds }
                     .toSet()
             }
 
@@ -1449,8 +1453,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                                 .append("date", "\$_id.date")
                                 .append("timezone", "Europe/Paris"),
                         ),
-                    )
-                    .append("total", "\$total"),
+                    ).append("total", "\$total"),
             ),
         )
 

@@ -20,7 +20,10 @@ import ai.tock.bot.engine.user.UserLock
 import ai.tock.shared.service.RedactionResult
 import ai.tock.shared.service.UserDataRedactor
 
-class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserLock) : UserDataRedactor {
+class LockedUserDataRedactor(
+    val delegate: UserDataRedactor,
+    val userLock: UserLock,
+) : UserDataRedactor {
     override suspend fun migrateUserId(
         namespace: String,
         oldUserId: String,
@@ -41,9 +44,8 @@ class LockedUserDataRedactor(val delegate: UserDataRedactor, val userLock: UserL
     override suspend fun deleteByUserId(
         namespace: String,
         userId: String,
-    ): RedactionResult {
-        return userLock.withLock(userId) {
+    ): RedactionResult =
+        userLock.withLock(userId) {
             delegate.deleteByUserId(namespace, userId)
         }
-    }
 }

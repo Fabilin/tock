@@ -65,7 +65,9 @@ interface OrchestrationRepository {
 object MongoOrchestrationRepository : OrchestrationRepository {
     private val col: MongoCollection<Orchestration> by lazy {
 
-        injector.provide<MongoDatabase>(TOCK_BOT_DATABASE).getCollection<Orchestration>()
+        injector
+            .provide<MongoDatabase>(TOCK_BOT_DATABASE)
+            .getCollection<Orchestration>()
             .apply {
                 ensureIndex(Orchestration::playerId)
                 ensureIndex(Orchestration::playerId, Orchestration::status)
@@ -114,9 +116,10 @@ object MongoOrchestrationRepository : OrchestrationRepository {
         newPlayerId: PlayerId,
     ): Long {
         val orchestrations =
-            col.find(
-                bsonEq("playerId.id", oldPlayerId.id),
-            ).toList()
+            col
+                .find(
+                    bsonEq("playerId.id", oldPlayerId.id),
+                ).toList()
 
         orchestrations.forEach { orchestration ->
             col.save(
@@ -134,9 +137,10 @@ object MongoOrchestrationRepository : OrchestrationRepository {
     }
 
     override fun deleteByUserId(playerId: PlayerId): Long =
-        col.deleteMany(
-            bsonEq("playerId.id", playerId.id),
-        ).deletedCount
+        col
+            .deleteMany(
+                bsonEq("playerId.id", playerId.id),
+            ).deletedCount
 
     private fun PlayerId.migrateIfMatches(
         oldPlayerId: PlayerId,
