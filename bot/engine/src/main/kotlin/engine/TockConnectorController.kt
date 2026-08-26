@@ -40,7 +40,6 @@ import ai.tock.shared.coroutines.ExperimentalTockCoroutines
 import ai.tock.shared.error
 import ai.tock.shared.injector
 import ai.tock.shared.intProperty
-import ai.tock.shared.longProperty
 import ai.tock.shared.provide
 import ai.tock.stt.STT
 import com.github.salomonbrys.kodein.instance
@@ -52,9 +51,11 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.net.URI
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.time.Duration.Companion.milliseconds
 
+@Deprecated("Use coroutine stories to perform asynchronous operations")
 private val synchronousMode = booleanProperty("tock_timeline_persistence_synchronous_mode", true)
+
+@Deprecated("Use coroutine stories to perform asynchronous operations")
 private val asynchronousMode = booleanProperty("tock_timeline_persistence_asynchronous_mode", false)
 
 /**
@@ -91,9 +92,6 @@ internal class TockConnectorController(
             controller.connector.unregister(controller)
         }
     }
-
-    private val maxLockedAttempts = intProperty("tock_bot_max_locked_attempts", 10)
-    private val lockedAttemptsWait = longProperty("tock_bot_locked_attempts_wait_in_ms", 500L).milliseconds
 
     private val userLock: UserLock by injector.instance()
     private val userTimelineDAO: UserTimelineDAO by injector.instance()
@@ -182,7 +180,11 @@ internal class TockConnectorController(
         try {
             logger.debug { "try to lock $playerId" }
             // Not aborting on lock loss to preserve old behavior
-            userLock.withLock(id, abortOnLockLoss = false) {
+            userLock.withLock(
+                userId = id,
+                postLockRelease = { callback.userLockReleased(action) },
+                abortOnLockLoss = false,
+            ) {
                 try {
                     callback.userLocked(action)
 
@@ -192,7 +194,7 @@ internal class TockConnectorController(
                             action.playerId,
                             data.priorUserId,
                             data.groupId,
-                            storyDefinitionLoader(action.applicationId),
+                            storyDefinitionLoader(action.connectorId),
                         )
 
                     // Notify callback that timeline has been loaded
@@ -209,13 +211,8 @@ internal class TockConnectorController(
                         userTimelineDAO.save(userTimeline, bot.botDefinition)
                     }
                 } catch (t: Throwable) {
-                    send(null, data, action, errorMessage(action.recipientId, action.applicationId, action.playerId))
+                    send(null, data, action, errorMessage(action.recipientId, action.connectorId, action.playerId))
                     callback.exceptionThrown(action, t)
-                } finally {
-                    if (!asynchronousMode) {
-                        userLock.releaseLock(id)
-                        callback.userLockReleased(action)
-                    }
                 }
             }
         } catch (e: LockAcquisitionException) {
@@ -242,7 +239,7 @@ internal class TockConnectorController(
                         action.playerId,
                         data.priorUserId,
                         data.groupId,
-                        storyDefinitionLoader(action.applicationId),
+                        storyDefinitionLoader(action.connectorId),
                     )
                 bot.support(action, userTimeline, this@TockConnectorController, data)
             } catch (t: Throwable) {
@@ -323,7 +320,7 @@ internal class TockConnectorController(
         action: Action,
         data: ConnectorData,
     ) {
-        connector.send(TypingOnEvent(action.playerId, action.applicationId), data.callback)
+        connector.send(TypingOnEvent(action.playerId, action.connectorId), data.callback)
     }
 
     fun sendIntent(

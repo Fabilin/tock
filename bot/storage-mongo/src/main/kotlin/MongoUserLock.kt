@@ -134,7 +134,7 @@ internal object MongoUserLock : UserLock {
         }
     }
 
-    override suspend fun lock(userId: String): Boolean = lock(userId, lockId = null)
+    override suspend fun tryLock(userId: String): Boolean = lock(userId, lockId = null)
 
     private suspend fun lock(
         userId: String,
@@ -238,6 +238,7 @@ internal object MongoUserLock : UserLock {
     override suspend fun <T> withLock(
         userId: String,
         abortOnLockLoss: Boolean,
+        postLockRelease: (() -> Unit)?,
         op: suspend () -> T,
     ): T {
         val lockId = UUID.randomUUID()
@@ -278,6 +279,7 @@ internal object MongoUserLock : UserLock {
             }
         } finally {
             releaseLock(userId, lockId)
+            postLockRelease?.invoke()
         }
     }
 
