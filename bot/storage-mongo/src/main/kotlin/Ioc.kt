@@ -69,7 +69,7 @@ val botMongoModule =
                     MONGO_DATABASE,
                 )
             }
-        bind<CoroutineDatabase>(MONGO_DATABASE) with provider { instance<AsyncMongoDatabase>().coroutine }
+        bind<CoroutineDatabase>(MONGO_DATABASE) with provider { instance<AsyncMongoDatabase>(MONGO_DATABASE).coroutine }
         bind<BotApplicationConfigurationDAO>() with provider { BotApplicationConfigurationMongoDAO }
         bind<BotBusinessRulesConfigurationDAO>() with provider { BotBusinessRulesConfigurationMongoDAO }
         bind<BotRAGConfigurationDAO>() with provider { BotRAGConfigurationMongoDAO }
