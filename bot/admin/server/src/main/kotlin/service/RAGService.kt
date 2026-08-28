@@ -50,9 +50,7 @@ object RAGService {
     fun getRAGConfiguration(
         namespace: String,
         botId: String,
-    ): BotRAGConfiguration? {
-        return ragConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
-    }
+    ): BotRAGConfiguration? = ragConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
 
     /**
      * Deleting the RAG Configuration
@@ -110,21 +108,22 @@ object RAGService {
         return try {
             // If RAG Enabled, so disable the unknown story if exists
             // Else enable the unknown story if exists
-            storyDefinitionDAO.getStoryDefinitionByNamespaceAndBotIdAndIntent(
-                ragConfiguration.namespace,
-                ragConfiguration.botId,
-                Intent.UNKNOWN_INTENT_NAME.withoutNamespace(),
-            )?.let {
-                storyDefinitionDAO.save(
-                    it.copy(
-                        features =
-                            prepareEndingFeatures(
-                                it,
-                                !ragConfiguration.enabled,
-                            ),
-                    ),
-                )
-            }
+            storyDefinitionDAO
+                .getStoryDefinitionByNamespaceAndBotIdAndIntent(
+                    ragConfiguration.namespace,
+                    ragConfiguration.botId,
+                    Intent.UNKNOWN_INTENT_NAME.withoutNamespace(),
+                )?.let {
+                    storyDefinitionDAO.save(
+                        it.copy(
+                            features =
+                                prepareEndingFeatures(
+                                    it,
+                                    !ragConfiguration.enabled,
+                                ),
+                        ),
+                    )
+                }
 
             ragConfigurationDAO.save(ragConfig)
         } catch (e: MongoWriteException) {

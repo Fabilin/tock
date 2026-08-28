@@ -16,7 +16,7 @@
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActionReport, DialogReport, Sentence, SentenceWithFootnotes } from '../../../model/dialog-data';
-import { getDialogMessageUserAvatar, getDialogMessageUserQualifier } from '../../../utils';
+import { getDialogMessageUserAvatar, getDialogMessageUserQualifierKey } from '../../../utils';
 import { NbDialogService } from '@nebular/theme';
 import { TestDialogService } from '../../test-dialog/test-dialog.service';
 import { Router } from '@angular/router';
@@ -29,12 +29,13 @@ import { RagAnswerToFaqAnswerInfos } from '../../../../faq/faq-management/faq-ma
 import { AnnotationComponent } from 'src/app/shared/components';
 import { FeedbackVote } from '../../../../analytics/dialogs/dialogs';
 import { UserRole } from '../../../../model/auth';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
-  selector: 'tock-chat-ui-dialog-logger',
-
-  templateUrl: './chat-ui-dialog-logger.component.html',
-  styleUrl: './chat-ui-dialog-logger.component.scss'
+    selector: 'tock-chat-ui-dialog-logger',
+    templateUrl: './chat-ui-dialog-logger.component.html',
+    styleUrl: './chat-ui-dialog-logger.component.scss',
+    standalone: false
 })
 export class ChatUiDialogLoggerComponent implements OnInit, OnDestroy {
   private readonly destroy$: Subject<boolean> = new Subject();
@@ -57,7 +58,8 @@ export class ChatUiDialogLoggerComponent implements OnInit, OnDestroy {
     private nbDialogService: NbDialogService,
     private router: Router,
     public state: StateService,
-    private botConfiguration: BotConfigurationService
+    private botConfiguration: BotConfigurationService,
+    private transloco: TranslocoService
   ) {}
 
   ngOnInit() {
@@ -66,8 +68,8 @@ export class ChatUiDialogLoggerComponent implements OnInit, OnDestroy {
     });
   }
 
-  getUserName(action: ActionReport): string {
-    return getDialogMessageUserQualifier(action.isBot());
+  getUserNameKey(action: ActionReport): string {
+    return getDialogMessageUserQualifierKey(action.isBot());
   }
 
   getUserAvatar(action: ActionReport): string {
@@ -107,7 +109,7 @@ export class ChatUiDialogLoggerComponent implements OnInit, OnDestroy {
     if (configuration) {
       return `${configuration.name} > ${configuration.connectorType.label()} (${configuration.applicationId})`;
     }
-    return 'Unknown';
+    return this.transloco.translate('common.connectors.unknown-connector');
   }
 
   normalizeLocaleCode(code: string): string {

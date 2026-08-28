@@ -16,12 +16,13 @@
 
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
-import { StateService } from '../../core-nlp/state.service';
+import { StateService } from '../../../core-nlp/state.service';
 
 @Component({
-  selector: 'tock-intent-dialog',
-  templateUrl: './intent-dialog.component.html',
-  styleUrls: ['./intent-dialog.component.css']
+    selector: 'tock-intent-dialog',
+    templateUrl: './intent-dialog.component.html',
+    styleUrls: ['./intent-dialog.component.css'],
+    standalone: false
 })
 export class IntentDialogComponent implements OnInit {
   @Input() create: boolean;
@@ -38,7 +39,7 @@ export class IntentDialogComponent implements OnInit {
   @ViewChild('labelElement') labelElement: ElementRef;
 
   constructor(public dialogRef: NbDialogRef<IntentDialogComponent>, private state: StateService) {
-    this.dialogType = this.story ? 'Story' : 'Intent';
+    this.dialogType = this.story ? 'story' : 'intent';
     setTimeout(() => this.labelElement.nativeElement.focus(), 500);
   }
 

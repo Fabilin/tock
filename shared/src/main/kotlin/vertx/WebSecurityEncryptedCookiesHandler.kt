@@ -65,5 +65,8 @@ open class WebSecurityEncryptedCookiesHandler(
     /**
      * Stripped down JWT
      */
-    data class SessionToken(val sub: String, val exp: Instant? = null)
+    data class SessionToken(
+        val sub: String,
+        val exp: Instant? = null,
+    )
 }

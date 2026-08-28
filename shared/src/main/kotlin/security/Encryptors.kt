@@ -64,7 +64,8 @@ class AesGcmCipher(
 
     constructor(passphrase: String) : this(
         key =
-            MessageDigest.getInstance(PASSPHRASE_HASH_ALGORITHM)
+            MessageDigest
+                .getInstance(PASSPHRASE_HASH_ALGORITHM)
                 .digest(passphrase.toByteArray(StandardCharsets.UTF_8)),
     )
 
@@ -83,14 +84,13 @@ class AesGcmCipher(
         return base64Encoder.encodeToString(iv + encrypted)
     }
 
-    fun decryptOrNull(s: String): String? {
-        return try {
+    fun decryptOrNull(s: String): String? =
+        try {
             decryptOrThrow(s)
         } catch (e: Exception) {
             logger.debug(e) { "AES-GCM decrypt failed" }
             null
         }
-    }
 
     fun decryptOrThrow(s: String): String {
         val data = base64Decoder.decode(s)
@@ -138,10 +138,12 @@ fun sha256Uuid(
     namespace: UUID? = null,
 ): UUID {
     val digest =
-        MessageDigest.getInstance(SHA_256_ALGORITHM).apply {
-            update(namespace?.toString()?.toByteArray() ?: oidNamespaceBytes)
-            update(s.toByteArray())
-        }.digest()
+        MessageDigest
+            .getInstance(SHA_256_ALGORITHM)
+            .apply {
+                update(namespace?.toString()?.toByteArray() ?: oidNamespaceBytes)
+                update(s.toByteArray())
+            }.digest()
     digest[6] = (digest[6].toInt() and 0x0f).toByte() // clear version
     digest[6] = (digest[6].toInt() or 0x80).toByte() // set to version 8
     digest[8] = (digest[8].toInt() and 0x3f).toByte() // clear variant
@@ -167,23 +169,20 @@ private fun uuidFromBytes(data: ByteArray): UUID {
  *
  * Consider using [encryptAesGcm] for security-sensitive purposes.
  */
-fun encrypt(s: String): String {
-    return textEncryptor.encrypt(s)
-}
+fun encrypt(s: String): String = textEncryptor.encrypt(s)
 
 /**
  * Decrypt a string and return the result.
  *
  * Consider using [decryptAesGcm] for security-sensitive purposes.
  */
-fun decrypt(s: String): String {
-    return try {
+fun decrypt(s: String): String =
+    try {
         textEncryptor.decrypt(s)
     } catch (e: Exception) {
         logger.error(e)
         s
     }
-}
 
 /**
  * Encrypt a string with AES-256-GCM (authenticated encryption: tampering with the result is detected on decryption)

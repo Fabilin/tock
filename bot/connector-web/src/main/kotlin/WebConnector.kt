@@ -100,7 +100,8 @@ class WebConnector internal constructor(
     val path: String,
     private val webSecurityHandler: WebSecurityHandler,
     private val publicPath: String,
-) : ConnectorBase(webConnectorType, setOf(CAROUSEL)), OrchestrationConnector {
+) : ConnectorBase(webConnectorType, setOf(CAROUSEL)),
+    OrchestrationConnector {
     @Deprecated("Use the more aptly named connectorId field", ReplaceWith("connectorId"))
     val applicationId: String get() = connectorId
 
@@ -128,15 +129,16 @@ class WebConnector internal constructor(
             }
 
             val corsHandler =
-                CorsHandler.create()
+                CorsHandler
+                    .create()
                     .addOriginWithRegex(corsPattern)
                     .allowedMethod(HttpMethod.POST)
                     .run {
                         if (sseEnabled || directSseEnabled) allowedMethod(HttpMethod.GET) else this
-                    }
-                    .allowedHeader("Access-Control-Allow-Origin")
+                    }.allowedHeader("Access-Control-Allow-Origin")
                     .allowedHeader("Content-Type")
-                    .allowedHeader("X-Requested-With").apply {
+                    .allowedHeader("X-Requested-With")
+                    .apply {
                         webConnectorExtraHeaders.forEach {
                             this.allowedHeader(it)
                         }
@@ -144,7 +146,8 @@ class WebConnector internal constructor(
                     // browsers do not send or save cookies unless credentials are allowed
                     .allowCredentials(webSecurityHandler is WebSecurityCookiesHandler)
 
-            router.routeWithRegex("$path(/.*)?")
+            router
+                .routeWithRegex("$path(/.*)?")
                 .order(-10)
                 // Apply CORS Handler for all paths and all methods (OPTIONS handled automatically)
                 .handler(corsHandler)
@@ -160,7 +163,8 @@ class WebConnector internal constructor(
             }
 
             if (directSseEnabled) {
-                router.route("$path/sse/direct")
+                router
+                    .route("$path/sse/direct")
                     .coHandler { context ->
                         try {
                             val body =
@@ -176,7 +180,8 @@ class WebConnector internal constructor(
             }
 
             // Main connector endpoint
-            router.post(path)
+            router
+                .post(path)
                 .handler(webSecurityHandler)
                 .coHandler { context ->
                     // Override the user on the request body
@@ -393,7 +398,10 @@ class WebConnector internal constructor(
                 }
             }
 
-            is MetadataEvent -> (callback as? WebConnectorCallback)?.addMetadata(event)
+            is MetadataEvent -> {
+                (callback as? WebConnectorCallback)?.addMetadata(event)
+            }
+
             else -> {
                 logger.trace { "unsupported event: $event" }
             }
@@ -439,12 +447,11 @@ class WebConnector internal constructor(
     override fun loadProfile(
         callback: ConnectorCallback,
         userId: PlayerId,
-    ): UserPreferences {
-        return when (callback) {
+    ): UserPreferences =
+        when (callback) {
             is WebConnectorCallback -> UserPreferences().apply { locale = callback.locale }
             else -> UserPreferences()
         }
-    }
 
     override fun addSuggestions(
         text: CharSequence,
@@ -499,7 +506,9 @@ class WebConnector internal constructor(
                         )
                     }
 
-                    else -> null
+                    else -> {
+                        null
+                    }
                 },
             )
         }

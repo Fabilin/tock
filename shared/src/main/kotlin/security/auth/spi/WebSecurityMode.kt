@@ -53,13 +53,9 @@ enum class WebSecurityMode {
     companion object {
         private val cookieAuth = propertyOrNull("tock_web_cookie_auth")
 
-        fun find(mode: String?): WebSecurityMode {
-            return mode?.let(::findByName)?.takeUnless { it == DEFAULT } ?: getDefault()
-        }
+        fun find(mode: String?): WebSecurityMode = mode?.let(::findByName)?.takeUnless { it == DEFAULT } ?: getDefault()
 
-        fun findByName(mode: String): WebSecurityMode? {
-            return WebSecurityMode.entries.firstOrNull { it.name == mode }
-        }
+        fun findByName(mode: String): WebSecurityMode? = WebSecurityMode.entries.firstOrNull { it.name == mode }
 
         /**
          * If "env.tock_web_cookie_auth" is set, uses the COOKIES or COOKIES_ENCRYPTED mode, otherwise nothing (PASSTHROUGH mode)

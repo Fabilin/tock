@@ -29,7 +29,5 @@ class FeedbackEvent(
     val actionId: String,
     val feedback: ActionFeedback? = null,
 ) : OneToOneEvent(userId, recipientId, applicationId) {
-    override fun toString(): String {
-        return "Feedback=$feedback to $actionId"
-    }
+    override fun toString(): String = "Feedback=$feedback to $actionId"
 }
