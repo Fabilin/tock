@@ -26,7 +26,7 @@ const val TOCK_USER_ID = "tock_user_id"
  * All implementations MUST call routingContext.next() in a blocking thread.
  *
  * Implementations must store the final user id in the [RoutingContext] using `routingContext.put(TOCK_USER_ID, userId)`.
- * They may optionally store arbitrary context data using [TRANSIENT_DIALOG_CONTEXT_KEY].
+ * They may optionally store a DialogContext with arbitrary context data using [TRANSIENT_DIALOG_CONTEXT_KEY].
  */
 interface WebSecurityHandler : Handler<RoutingContext> {
     companion object {

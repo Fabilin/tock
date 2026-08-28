@@ -87,7 +87,7 @@ class AesGcmCipher(
         return try {
             decryptOrThrow(s)
         } catch (e: Exception) {
-            logger.error(e)
+            logger.debug(e) { "AES-GCM decrypt failed" }
             null
         }
     }

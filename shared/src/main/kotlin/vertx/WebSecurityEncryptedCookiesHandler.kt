@@ -48,7 +48,7 @@ open class WebSecurityEncryptedCookiesHandler(
             } catch (_: JacksonException) {
                 return null
             }
-        if (expiresAt != null && expiresAt < clock.now()) {
+        if (expiresAt != null && expiresAt <= clock.now()) {
             return null
         }
         return userId
