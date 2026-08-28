@@ -20,7 +20,6 @@ import ai.tock.bot.engine.user.LockAcquisitionException
 import ai.tock.bot.engine.user.LockLostException
 import ai.tock.bot.engine.user.UserLock
 import ai.tock.bot.mongo.MongoBotConfiguration.asyncDatabase
-import ai.tock.bot.mongo.MongoUserLock.lockMaxAcquireAttempts
 import ai.tock.bot.mongo.UserLock_.Companion.Date
 import ai.tock.bot.mongo.UserLock_.Companion.Locked
 import ai.tock.bot.mongo.UserLock_.Companion._id

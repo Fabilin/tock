@@ -208,8 +208,9 @@ internal class TockConnectorController(
                     bot.handleAction(transformedAction, userTimeline, this, data)
 
                     if (synchronousMode && data.saveTimeline) {
-                        logger.warn { "Deprecated asynchronous timeline saving mode used, late writes will not be protected by the lock" }
                         userTimelineDAO.save(userTimeline, bot.botDefinition)
+                    } else if (asynchronousMode) {
+                        logger.warn { "Deprecated asynchronous timeline saving mode used, late writes will not be protected by the lock" }
                     }
                 } catch (t: Throwable) {
                     send(null, data, action, errorMessage(action.recipientId, action.connectorId, action.playerId))
