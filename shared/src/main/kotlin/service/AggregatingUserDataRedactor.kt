@@ -61,7 +61,7 @@ class AggregatingUserDataRedactor(
             } catch (e: CancellationException) {
                 throw e // cancellation should never be caught
             } catch (e: Exception) {
-                val providerName = "${delegate.name} (${delegate::class.qualifiedName ?: delegate::class.toString()}"
+                val providerName = "${delegate.name} (${delegate::class.qualifiedName ?: delegate::class.toString()})"
                 logger.error(e) { "redaction provider $providerName failed" }
                 failures += RedactionFailure(providerName, e)
             }
