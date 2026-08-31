@@ -1251,7 +1251,10 @@ class FaqAdminServiceTest : AbstractTest() {
                         applicationDefinition,
                     )
                 }
-            val errorMessage = exception.httpResponseBody.errors.single().message
+            val errorMessage =
+                exception.httpResponseBody.errors
+                    .single()
+                    .message
             assertTrue(errorMessage.contains("FAQ 'missing-utterance' has no utterance."))
             assertTrue(errorMessage.contains("FAQ 'missing-answer' has no answer."))
             verify(exactly = 0) { intentDAO.getIntentByNamespaceAndName(any(), any()) }

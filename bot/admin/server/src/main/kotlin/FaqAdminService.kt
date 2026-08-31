@@ -159,7 +159,11 @@ object FaqAdminService {
         }
 
         val duplicatedIntentNames =
-            queries.groupingBy { it.intentName }.eachCount().filterValues { it > 1 }.keys
+            queries
+                .groupingBy { it.intentName }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
         if (duplicatedIntentNames.isNotEmpty()) {
             badRequest("Duplicated FAQ intent names in import: ${duplicatedIntentNames.joinToString()}")
         }
@@ -172,8 +176,7 @@ object FaqAdminService {
                         application.namespace,
                         application.name,
                         query.intentName,
-                    )
-                    ?.takeIf { it.category != FAQ_CATEGORY }
+                    )?.takeIf { it.category != FAQ_CATEGORY }
                     ?.let { query.intentName }
             }
 
@@ -210,14 +213,18 @@ object FaqAdminService {
                 query.answer.copy(
                     _id =
                         existingFaq?.i18nId
-                            ?: BotAdminService.createI18nRequest(
-                                application.namespace,
-                                CreateI18nLabelRequest(
-                                    label = query.answer.defaultLabel?.takeUnless { it.isBlank() } ?: query.answer.i18n.first().label,
-                                    locale = query.answer.defaultLocale,
-                                    category = FAQ_CATEGORY,
-                                ),
-                            )._id,
+                            ?: BotAdminService
+                                .createI18nRequest(
+                                    application.namespace,
+                                    CreateI18nLabelRequest(
+                                        label =
+                                            query.answer.defaultLabel?.takeUnless { it.isBlank() } ?: query.answer.i18n
+                                                .first()
+                                                .label,
+                                        locale = query.answer.defaultLocale,
+                                        category = FAQ_CATEGORY,
+                                    ),
+                                )._id,
                     namespace = application.namespace,
                     category = FAQ_CATEGORY,
                     version = targetAnswerVersion,
@@ -245,17 +252,32 @@ object FaqAdminService {
     private fun validateImportedFAQ(
         query: FaqDefinitionRequest,
         application: ApplicationDefinition,
-    ): String? {
-        return when {
-            query.title.isBlank() -> "FAQ title is missing."
-            query.intentName.isBlank() -> "FAQ intent name is missing."
-            query.utterances.isEmpty() -> "FAQ '${query.intentName}' has no utterance."
-            query.answer.i18n.isEmpty() -> "FAQ '${query.intentName}' has no answer."
-            query.language !in application.supportedLocales ->
+    ): String? =
+        when {
+            query.title.isBlank() -> {
+                "FAQ title is missing."
+            }
+
+            query.intentName.isBlank() -> {
+                "FAQ intent name is missing."
+            }
+
+            query.utterances.isEmpty() -> {
+                "FAQ '${query.intentName}' has no utterance."
+            }
+
+            query.answer.i18n.isEmpty() -> {
+                "FAQ '${query.intentName}' has no answer."
+            }
+
+            query.language !in application.supportedLocales -> {
                 "FAQ '${query.intentName}' uses unsupported locale '${query.language}'."
-            else -> null
+            }
+
+            else -> {
+                null
+            }
         }
-    }
 
     /**
      * Return the FAQ intent.
