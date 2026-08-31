@@ -62,6 +62,36 @@ internal class SseChannels(
         return SseChannel(appId, UUID.randomUUID(), userId, onAction).also(channels::add)
     }
 
+    fun migrate(
+        appId: String?,
+        oldUserId: String,
+        newUserId: String,
+    ): Long {
+        if (oldUserId == newUserId) {
+            return 0
+        }
+
+        val databaseResult = channelDAO.updateRecipientId(oldUserId, newUserId)
+
+        val oldChannels = channelsByUser[oldUserId] ?: return databaseResult
+        val channelsToMigrate = oldChannels.filterTo(mutableSetOf()) { appId == null || it.appId == appId }
+        if (channelsToMigrate.isEmpty()) {
+            return databaseResult
+        }
+
+        oldChannels.removeAll(channelsToMigrate)
+        channelsByUser
+            .getOrPut(newUserId) { CopyOnWriteArrayList() }
+            .addAll(channelsToMigrate.map { it.copy(userId = newUserId) })
+        if (oldChannels.isEmpty()) {
+            channelsByUser.remove(oldUserId, oldChannels)
+        }
+
+        return databaseResult + channelsToMigrate.size
+    }
+
+    fun deletePersistedEvents(userId: String): Long = channelDAO.deleteByRecipientId(userId)
+
     fun sendMissedEvents(channel: SseChannel) {
         channelDAO.handleMissedEvents(channel.appId, channel.userId) { (_, _, response) ->
             channel.onAction(response).map { true }
@@ -69,8 +99,9 @@ internal class SseChannels(
     }
 
     fun unregister(channel: SseChannel) {
-        channelsByUser[channel.userId]?.removeIf {
-            it.uuid == channel.uuid
+        channelsByUser.entries.removeIf { (_, channels) ->
+            channels.removeIf { it.uuid == channel.uuid }
+            channels.isEmpty()
         }
     }
 

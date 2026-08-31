@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ai.tock.bot.connector.web.sse.channel
 
-internal interface ChannelDAO {
-    fun listenChanges(listener: ChannelEvent.Handler)
+package ai.tock.bot.engine.user
 
-    fun handleMissedEvents(
-        appId: String,
-        recipientId: String,
-        handler: ChannelEvent.Handler,
-    )
+open class UserLockException(
+    message: String,
+) : Exception(message)
 
-    fun updateRecipientId(
-        oldRecipientId: String,
-        newRecipientId: String,
-    ): Long
+/**
+ * Thrown to indicate that a lock could not be acquired, preventing an operation from executing
+ */
+class LockAcquisitionException(
+    message: String,
+) : UserLockException(message)
 
-    fun deleteByRecipientId(recipientId: String): Long
-
-    fun save(channelEvent: ChannelEvent)
-}
+/**
+ * Thrown to indicate that a lock's lease was lost to
+ * another owner before an operation completes.
+ */
+class LockLostException(
+    message: String,
+) : UserLockException(message)

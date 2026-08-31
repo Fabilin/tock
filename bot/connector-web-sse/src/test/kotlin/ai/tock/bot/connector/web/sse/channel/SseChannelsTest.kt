@@ -105,4 +105,37 @@ internal class SseChannelsTest {
         channels.send(appId, recipientId, message).await()
         verify { channelDaoMock.save(any()) }
     }
+
+    @Test
+    fun `Channels migrate active connections to the new user id`() {
+        val appId = "my-app"
+        val oldUserId = "old-user"
+        val newUserId = "new-user"
+        val message = botResponse("Welcome back")
+        val responses = mutableListOf<WebConnectorResponseContract>()
+        every { channelDaoMock.save(any()) } just runs
+        every { channelDaoMock.updateRecipientId(oldUserId, newUserId) } returns 2
+        val channel =
+            channels.register(appId, oldUserId) {
+                responses.add(it)
+                Future.succeededFuture<Unit>()
+            }
+
+        assertEquals(3, channels.migrate(appId, oldUserId, newUserId))
+        channels.send(appId, newUserId, message).await()
+
+        assertEquals(listOf(message), responses)
+        verify(inverse = true) { channelDaoMock.save(any()) }
+
+        channels.unregister(channel)
+        channels.send(appId, newUserId, message).await()
+        verify { channelDaoMock.save(any()) }
+    }
+
+    @Test
+    fun `Channels delete persisted events`() {
+        every { channelDaoMock.deleteByRecipientId("user") } returns 3
+
+        assertEquals(3, channels.deletePersistedEvents("user"))
+    }
 }

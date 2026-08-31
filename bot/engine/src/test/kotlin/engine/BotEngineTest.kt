@@ -70,7 +70,7 @@ import org.junit.jupiter.api.BeforeEach
  *
  */
 internal abstract class BotEngineTest {
-    val userLock: UserLock = mockk(relaxed = true)
+    val userLock: UserLock = mockk()
     val userTimelineDAO: UserTimelineDAO = mockk(relaxed = true)
     val userId = PlayerId("id")
     val botId = PlayerId("bot", PlayerType.bot)

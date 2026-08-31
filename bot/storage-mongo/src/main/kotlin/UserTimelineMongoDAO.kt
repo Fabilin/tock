@@ -31,6 +31,7 @@ import ai.tock.bot.admin.dialog.DialogStatsQuery
 import ai.tock.bot.admin.dialog.DialogStatsQueryResult
 import ai.tock.bot.admin.dialog.IntentTypeEnum
 import ai.tock.bot.admin.dialog.RatingReportQueryResult
+import ai.tock.bot.admin.evaluation.Evaluation
 import ai.tock.bot.admin.user.AnalyticsQuery
 import ai.tock.bot.admin.user.UserAnalytics
 import ai.tock.bot.admin.user.UserReportDAO
@@ -91,6 +92,8 @@ import com.mongodb.client.model.Filters.gte
 import com.mongodb.client.model.Filters.`in`
 import com.mongodb.client.model.Filters.lte
 import com.mongodb.client.model.IndexOptions
+import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.model.Updates
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bson.Document
@@ -107,7 +110,6 @@ import org.litote.kmongo.ascending
 import org.litote.kmongo.avg
 import org.litote.kmongo.bson
 import org.litote.kmongo.combine
-import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.aggregate
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.descending
@@ -163,12 +165,12 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
     private val db = asyncDatabase.coroutine
     val userTimelineCol = db.getCollection<UserTimelineCol>("user_timeline")
     val dialogCol = db.getCollection<DialogCol>("dialog")
-    private val dialogTextCol = db.getCollection<DialogTextCol>("dialog_text")
+    internal val dialogTextCol = db.getCollection<DialogTextCol>("dialog_text")
     private val clientIdCol = db.getCollection<ClientIdCol>("client_id")
-    private val connectorMessageCol = db.getCollection<ConnectorMessageCol>("connector_message")
-    private val nlpStatsCol = db.getCollection<NlpStatsCol>("action_nlp_stats")
-    private val snapshotCol = db.getCollection<SnapshotCol>("dialog_snapshot")
-    private val archivedEntityValuesCol = db.getCollection<ArchivedEntityValuesCol>("archived_entity_values")
+    internal val connectorMessageCol = db.getCollection<ConnectorMessageCol>("connector_message")
+    internal val nlpStatsCol = db.getCollection<NlpStatsCol>("action_nlp_stats")
+    internal val snapshotCol = db.getCollection<SnapshotCol>("dialog_snapshot")
+    internal val archivedEntityValuesCol = db.getCollection<ArchivedEntityValuesCol>("archived_entity_values")
 
     init {
         runBlocking {
@@ -370,23 +372,39 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
         namespace: String,
         oldPlayerId: PlayerId,
         newPlayerId: PlayerId,
-    ) {
-        val timelineId = timelineId(oldPlayerId.id, namespace)
-        userTimelineCol.updateOneById(timelineId, setValue(PlayerId, newPlayerId))
-        dialogCol.updateMany(
+    ): Long {
+        val oldTimelineId = timelineId(oldPlayerId.id, namespace)
+        val newTimelineId = timelineId(newPlayerId.id, namespace)
+        val oldTimeline = userTimelineCol.findOneById(oldTimelineId)
+        val timelineUpdated: Long =
+            oldTimeline?.let {
+                userTimelineCol.save(it.copy(_id = newTimelineId.toId(), playerId = newPlayerId))
+                if (oldTimelineId != newTimelineId) {
+                    userTimelineCol.deleteOneById(oldTimelineId)
+                }
+                1
+            } ?: 0
+        val dialogFilter =
             and(
                 Namespace eq namespace,
-                PlayerIds contains oldPlayerId,
-            ),
-            addToSet(PlayerIds, newPlayerId),
-        )
-        dialogCol.updateMany(
-            and(
-                Namespace eq namespace,
-                PlayerIds contains newPlayerId,
-            ),
-            pull(PlayerIds, oldPlayerId),
-        )
+                eq("playerIds.id", oldPlayerId.id),
+            )
+        val dialogResult =
+            dialogCol.updateMany(
+                dialogFilter,
+                Updates.combine(
+                    Updates.set("stories.\$[].actions.\$[player].playerId", newPlayerId),
+                    Updates.set("stories.\$[].actions.\$[recipient].recipientId", newPlayerId),
+                ),
+                UpdateOptions().arrayFilters(
+                    listOf(
+                        eq("player.playerId.id", oldPlayerId.id),
+                        eq("recipient.recipientId.id", oldPlayerId.id),
+                    ),
+                ),
+            )
+        dialogCol.updateMany(dialogFilter, addToSet(PlayerIds, newPlayerId))
+        dialogCol.updateMany(dialogFilter, pull(PlayerIds, oldPlayerId))
         if (newPlayerId.clientId != null) {
             clientIdCol.updateOneById(
                 newPlayerId.clientId!!,
@@ -397,6 +415,67 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
                 upsert(),
             )
         }
+        return timelineUpdated + dialogResult.matchedCount
+    }
+
+    private suspend fun removeDialogDependencies(dialogs: List<DialogCol>) {
+        val dialogIds = dialogs.map { it._id }
+        if (dialogIds.isEmpty()) return
+
+        val actionIds = dialogs.flatMap { dialog -> dialog.stories.flatMap { it.actions }.map { it.id } }.toSet()
+        val sharedActionIds =
+            if (actionIds.isEmpty()) {
+                emptySet()
+            } else {
+                dialogCol
+                    .find(Stories.actions.id `in` actionIds)
+                    .toList()
+                    .asSequence()
+                    .filterNot { it._id in dialogIds }
+                    .flatMap { dialog ->
+                        dialog.stories
+                            .asSequence()
+                            .flatMap { it.actions.asSequence() }
+                            .map { it.id }
+                    }.filter { it in actionIds }
+                    .toSet()
+            }
+
+        dialogTextCol.deleteMany(DialogId `in` dialogIds)
+        connectorMessageCol.deleteMany(ConnectorMessageCol::_id / ConnectorMessageColId::dialogId `in` dialogIds)
+        nlpStatsCol.deleteMany(NlpStatsCol::_id / NlpStatsColId::dialogId `in` dialogIds)
+        snapshotCol.deleteMany(SnapshotCol::_id `in` dialogIds)
+        EvaluationMongoDAO.col.deleteMany(Evaluation::dialogId `in` dialogIds)
+
+        val exclusivelyOwnedActionIds = actionIds - sharedActionIds
+        if (exclusivelyOwnedActionIds.isNotEmpty()) {
+            archivedEntityValuesCol
+                .find(ArchivedEntityValuesCol::values / ArchivedEntityValuesCol.ArchivedEntityValueWrapper::actionId `in` exclusivelyOwnedActionIds)
+                .toList()
+                .forEach { archivedValues ->
+                    val remainingValues = archivedValues.values.filterNot { it.actionId in exclusivelyOwnedActionIds }
+                    if (remainingValues.isEmpty()) {
+                        archivedEntityValuesCol.deleteOneById(archivedValues._id)
+                    } else {
+                        archivedEntityValuesCol.save(archivedValues.copy(values = remainingValues))
+                    }
+                }
+        }
+    }
+
+    override suspend fun remove(
+        namespace: String,
+        playerId: PlayerId,
+        clearLock: Boolean,
+    ): Long {
+        val dialogs = dialogCol.find(and(PlayerIds.id eq playerId.id, Namespace eq namespace)).toList()
+        removeDialogDependencies(dialogs)
+        val deletedDialogs = dialogCol.deleteMany(and(PlayerIds.id eq playerId.id, Namespace eq namespace))
+        val deletedTimelines = userTimelineCol.deleteOne(and(PlayerId.id eq playerId.id, Namespace eq namespace))
+        if (clearLock) {
+            MongoUserLock.deleteLock(playerId.id)
+        }
+        return deletedTimelines.deletedCount + deletedDialogs.deletedCount
     }
 
     private suspend fun saveConnectorMessage(
@@ -533,15 +612,6 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
 
         logger.trace { "timeline for user $userId : $timeline" }
         return timeline
-    }
-
-    override suspend fun remove(
-        namespace: String,
-        playerId: PlayerId,
-    ) {
-        dialogCol.deleteMany(and(PlayerIds.id eq playerId.id, Namespace eq namespace))
-        userTimelineCol.deleteOne(and(PlayerId.id eq playerId.id, Namespace eq namespace))
-        MongoUserLock.deleteLock(playerId.id)
     }
 
     override suspend fun removeClient(
@@ -912,8 +982,7 @@ internal object UserTimelineMongoDAO : UserTimelineDAO, UserReportDAO, DialogRep
             dialogCol
                 .find(_id `in` ids)
                 .toList()
-                .mapNotNull { it.toDialogReport() }
-                .toSet()
+                .mapTo(mutableSetOf()) { it.toDialogReport() }
         }
 
     override suspend fun getClientDialogs(
