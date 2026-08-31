@@ -1104,6 +1104,167 @@ class FaqAdminServiceTest : AbstractTest() {
         }
     }
 
+    @Nested
+    inner class ImportFaqs {
+        @AfterEach
+        fun unmockServices() {
+            unmockkObject(FaqAdminService)
+            unmockkObject(BotAdminService)
+        }
+
+        @Test
+        fun `GIVEN an existing target FAQ WHEN importing THEN target identifiers and namespace are preserved`() {
+            mockkObject(FaqAdminService)
+            val sourceFaq =
+                faqDefinitionRequest.copy(
+                    id = faqId2.toString(),
+                    intentId = intentId2.toString(),
+                    applicationName = "source-app",
+                    answer = mockedI18n.copy(_id = i18nId2, namespace = "source"),
+                    intentName = existingIntent.name,
+                )
+
+            every {
+                storyDefinitionDAO.getConfiguredStoryDefinitionByNamespaceAndBotIdAndIntent(
+                    namespace,
+                    botId,
+                    existingIntent.name,
+                )
+            } returns existingStory.copy(category = FAQ_CATEGORY)
+            every { intentDAO.getIntentByNamespaceAndName(namespace, existingIntent.name) } returns existingIntent
+            every {
+                faqDefinitionDAO.getFaqDefinitionByIntentIdAndBotIdAndNamespace(intentId, botId, namespace)
+            } returns faqDefinition
+            every { i18nDAO.getLabelById(i18nId) } returns mockedI18n.copy(version = 3)
+            every { i18nDAO.save(any<I18nLabel>()) } just Runs
+            every { FaqAdminService.saveFAQ(any(), userLogin, applicationDefinition) } answers { firstArg() }
+
+            val count = FaqAdminService.importFAQs(listOf(sourceFaq), userLogin, applicationDefinition)
+
+            val savedAnswer = slot<I18nLabel>()
+            val savedFaq = slot<FaqDefinitionRequest>()
+            verify(exactly = 1) { i18nDAO.save(capture(savedAnswer)) }
+            verify(exactly = 1) { FaqAdminService.saveFAQ(capture(savedFaq), userLogin, applicationDefinition) }
+            assertEquals(1, count)
+            assertEquals(i18nId, savedAnswer.captured._id)
+            assertEquals(namespace, savedAnswer.captured.namespace)
+            assertEquals(3, savedAnswer.captured.version)
+            assertEquals(faqId.toString(), savedFaq.captured.id)
+            assertEquals(intentId.toString(), savedFaq.captured.intentId)
+            assertEquals(botId, savedFaq.captured.applicationName)
+            assertEquals(null, savedFaq.captured.creationDate)
+            assertEquals(null, savedFaq.captured.updateDate)
+        }
+
+        @Test
+        fun `GIVEN no target FAQ WHEN importing THEN a target answer identifier is created`() {
+            mockkObject(FaqAdminService)
+            val importedFaq = faqDefinitionRequest.copy(id = null, intentId = null)
+            val createdAnswer = mockedI18n.copy(_id = i18nId2)
+
+            every {
+                storyDefinitionDAO.getConfiguredStoryDefinitionByNamespaceAndBotIdAndIntent(
+                    namespace,
+                    botId,
+                    importedFaq.intentName,
+                )
+            } returns null
+            every { intentDAO.getIntentByNamespaceAndName(namespace, importedFaq.intentName) } returns null
+            every { i18nDAO.save(any<I18nLabel>()) } just Runs
+            every { FaqAdminService.saveFAQ(any(), userLogin, applicationDefinition) } answers { firstArg() }
+            mockkObject(BotAdminService)
+            every { BotAdminService.createI18nRequest(namespace, any()) } returns createdAnswer
+
+            val count = FaqAdminService.importFAQs(listOf(importedFaq), userLogin, applicationDefinition)
+
+            val savedAnswer = slot<I18nLabel>()
+            val savedFaq = slot<FaqDefinitionRequest>()
+            verify(exactly = 1) { i18nDAO.save(capture(savedAnswer)) }
+            verify(exactly = 1) { FaqAdminService.saveFAQ(capture(savedFaq), userLogin, applicationDefinition) }
+            assertEquals(1, count)
+            assertEquals(i18nId2, savedAnswer.captured._id)
+            assertEquals(namespace, savedAnswer.captured.namespace)
+            assertEquals(null, savedFaq.captured.id)
+            assertEquals(null, savedFaq.captured.intentId)
+        }
+
+        @Test
+        fun `GIVEN classic stories using target intents WHEN importing THEN report all conflicts before processing`() {
+            val importedFaq = faqDefinitionRequest.copy(intentName = existingIntent.name)
+            val otherImportedFaq = faqDefinitionRequest.copy(intentName = "other-conflicting-intent")
+            val existingClassicStory =
+                existingStory.copy(
+                    botId = botId,
+                    namespace = namespace,
+                    intent = IntentWithoutNamespace(existingIntent.name),
+                    category = "default",
+                )
+
+            every {
+                storyDefinitionDAO.getConfiguredStoryDefinitionByNamespaceAndBotIdAndIntent(
+                    namespace,
+                    botId,
+                    existingIntent.name,
+                )
+            } returns existingClassicStory
+            every {
+                storyDefinitionDAO.getConfiguredStoryDefinitionByNamespaceAndBotIdAndIntent(
+                    namespace,
+                    botId,
+                    otherImportedFaq.intentName,
+                )
+            } returns existingClassicStory
+
+            val exception =
+                assertThrows<BadRequestException> {
+                    FaqAdminService.importFAQs(listOf(importedFaq, otherImportedFaq), userLogin, applicationDefinition)
+                }
+            assertTrue(
+                exception.httpResponseBody.errors.single().message.contains(
+                    "[${existingIntent.name}, ${otherImportedFaq.intentName}]",
+                ),
+            )
+            verify(exactly = 0) { intentDAO.getIntentByNamespaceAndName(any(), any()) }
+            verify(exactly = 0) {
+                faqDefinitionDAO.getFaqDefinitionByIntentIdAndBotIdAndNamespace(any(), any(), any())
+            }
+            verify(exactly = 0) { i18nDAO.save(any<I18nLabel>()) }
+        }
+
+        @Test
+        fun `GIVEN invalid FAQs in the batch WHEN importing THEN report all errors before processing`() {
+            val missingUtteranceFaq = faqDefinitionRequest.copy(intentName = "missing-utterance", utterances = emptyList())
+            val missingAnswerFaq =
+                faqDefinitionRequest.copy(
+                    intentName = "missing-answer",
+                    answer = faqDefinitionRequest.answer.copy(i18n = linkedSetOf()),
+                )
+            every {
+                storyDefinitionDAO.getConfiguredStoryDefinitionByNamespaceAndBotIdAndIntent(any(), any(), any())
+            } returns null
+
+            val exception =
+                assertThrows<BadRequestException> {
+                    FaqAdminService.importFAQs(
+                        listOf(missingUtteranceFaq, missingAnswerFaq),
+                        userLogin,
+                        applicationDefinition,
+                    )
+                }
+            val errorMessage =
+                exception.httpResponseBody.errors
+                    .single()
+                    .message
+            assertTrue(errorMessage.contains("FAQ 'missing-utterance' has no utterance."))
+            assertTrue(errorMessage.contains("FAQ 'missing-answer' has no answer."))
+            verify(exactly = 0) { intentDAO.getIntentByNamespaceAndName(any(), any()) }
+            verify(exactly = 0) {
+                faqDefinitionDAO.getFaqDefinitionByIntentIdAndBotIdAndNamespace(any(), any(), any())
+            }
+            verify(exactly = 0) { i18nDAO.save(any<I18nLabel>()) }
+        }
+    }
+
     /**
      * Tests according to faq search
      */

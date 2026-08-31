@@ -1033,6 +1033,21 @@ open class BotAdminVerticle : AdminVerticle() {
             }
         }
 
+        blockingJsonPost(
+            "/faq/import/:applicationId",
+            setOf(botUser),
+            simpleLogger("Import FAQs"),
+        ) { context, queries: List<FaqDefinitionRequest> ->
+            val applicationDefinition = front.getApplicationById(context.pathId("applicationId"))
+            if (context.organization == applicationDefinition?.namespace) {
+                measureTimeMillis(context) {
+                    FaqAdminService.importFAQs(queries, context.userLogin, applicationDefinition)
+                }
+            } else {
+                unauthorized()
+            }
+        }
+
         blockingJsonDelete(
             "/faq/:faqId",
             setOf(botUser),
