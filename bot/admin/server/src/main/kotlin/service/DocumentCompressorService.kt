@@ -43,9 +43,7 @@ object DocumentCompressorService {
     fun getDocumentCompressorConfiguration(
         namespace: String,
         botId: String,
-    ): BotDocumentCompressorConfiguration? {
-        return documentCompressorConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
-    }
+    ): BotDocumentCompressorConfiguration? = documentCompressorConfigurationDAO.findByNamespaceAndBotId(namespace, botId)
 
     /**
      * Get the Document Compressor Configuration
@@ -57,9 +55,7 @@ object DocumentCompressorService {
         namespace: String,
         botId: String,
         enabled: Boolean,
-    ): BotDocumentCompressorConfiguration? {
-        return documentCompressorConfigurationDAO.findByNamespaceAndBotIdAndEnabled(namespace, botId, enabled)
-    }
+    ): BotDocumentCompressorConfiguration? = documentCompressorConfigurationDAO.findByNamespaceAndBotIdAndEnabled(namespace, botId, enabled)
 
     /**
      * Deleting the Document Compressor Configuration

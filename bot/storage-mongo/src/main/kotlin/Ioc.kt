@@ -42,6 +42,8 @@ import ai.tock.bot.mongo.ai.tock.bot.mongo.FeatureCache
 import ai.tock.shared.TOCK_BOT_DATABASE
 import ai.tock.shared.getAsyncDatabase
 import ai.tock.shared.getDatabase
+import ai.tock.shared.service.AggregatingUserDataRedactor
+import ai.tock.shared.service.UserDataRedactor
 import ai.tock.translator.I18nDAO
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind
@@ -51,19 +53,23 @@ import com.github.salomonbrys.kodein.singleton
 import com.mongodb.client.MongoDatabase
 import indicator.IndicatorMongoDAO
 import indicator.metric.MetricMongoDAO
+import org.litote.kmongo.coroutine.CoroutineDatabase
+import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.getCollection
+import com.mongodb.reactivestreams.client.MongoDatabase as AsyncMongoDatabase
 
 const val MONGO_DATABASE: String = TOCK_BOT_DATABASE
 
 val botMongoModule =
     Kodein.Module {
         bind<MongoDatabase>(MONGO_DATABASE) with provider { getDatabase(MONGO_DATABASE) }
-        bind<com.mongodb.reactivestreams.client.MongoDatabase>(MONGO_DATABASE) with
+        bind<AsyncMongoDatabase>(MONGO_DATABASE) with
             provider {
                 getAsyncDatabase(
                     MONGO_DATABASE,
                 )
             }
+        bind<CoroutineDatabase>(MONGO_DATABASE) with provider { instance<AsyncMongoDatabase>(MONGO_DATABASE).coroutine }
         bind<BotApplicationConfigurationDAO>() with provider { BotApplicationConfigurationMongoDAO }
         bind<BotBusinessRulesConfigurationDAO>() with provider { BotBusinessRulesConfigurationMongoDAO }
         bind<BotRAGConfigurationDAO>() with provider { BotRAGConfigurationMongoDAO }
@@ -87,4 +93,11 @@ val botMongoModule =
         bind<MetricDAO>() with provider { MetricMongoDAO }
         bind<EvaluationSampleDAO>() with provider { EvaluationSampleMongoDAO }
         bind<EvaluationDAO>() with provider { EvaluationMongoDAO }
+        bind<UserDataRedactor>() with
+            singleton {
+                LockedUserDataRedactor(
+                    delegate = AggregatingUserDataRedactor(),
+                    userLock = instance(),
+                )
+            }
     }

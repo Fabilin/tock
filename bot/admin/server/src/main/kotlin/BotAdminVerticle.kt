@@ -365,7 +365,8 @@ open class BotAdminVerticle : AdminVerticle() {
                 val sb = StringBuilder()
                 val printer = CsvCodec.newPrinter(sb)
                 printer.printRecord(listOf("Timestamp", "Dialog ID", "Note", "Commentaire"))
-                BotAdminService.search(query)
+                BotAdminService
+                    .search(query)
                     .dialogs
                     .forEach { label ->
                         printer.printRecord(
@@ -400,7 +401,8 @@ open class BotAdminVerticle : AdminVerticle() {
                         "Message",
                     ),
                 )
-                BotAdminService.search(query)
+                BotAdminService
+                    .search(query)
                     .dialogs
                     .forEach { dialog ->
                         dialog.actions.forEach {
@@ -417,7 +419,9 @@ open class BotAdminVerticle : AdminVerticle() {
                                             " ",
                                         )
                                     } else {
-                                        (it.message as Sentence).messages.joinToString { it.texts.values.joinToString() }
+                                        (it.message as Sentence)
+                                            .messages
+                                            .joinToString { it.texts.values.joinToString() }
                                             .replace("\n", " ")
                                     },
                                 ),
@@ -548,14 +552,16 @@ open class BotAdminVerticle : AdminVerticle() {
                                 connectorProvider
                                     .configuration()
                                     .fields
-                                    .filter { it.mandatory && !bot.parameters.containsKey(it.key) }.associate {
+                                    .filter { it.mandatory && !bot.parameters.containsKey(it.key) }
+                                    .associate {
                                         it.key to "Please fill a value"
                                     }
                             conf.copy(parameters = conf.parameters + additionalProperties)
                         } else {
                             conf
                         }
-                    connectorProvider.check(filledConf.toConnectorConfiguration())
+                    connectorProvider
+                        .check(filledConf.toConnectorConfiguration())
                         .apply {
                             if (isNotEmpty()) {
                                 badRequest(joinToString())
@@ -598,7 +604,8 @@ open class BotAdminVerticle : AdminVerticle() {
             admin,
             simpleLogger("Delete Bot Configuration", { it.path("confId") to true }),
         ) { context ->
-            BotAdminService.getBotConfigurationById(context.pathId("confId"))
+            BotAdminService
+                .getBotConfigurationById(context.pathId("confId"))
                 ?.let {
                     if (context.organization == it.namespace) {
                         BotAdminService.deleteApplicationConfiguration(it)
@@ -728,13 +735,15 @@ open class BotAdminVerticle : AdminVerticle() {
             setOf(botUser),
             logger<CreateStoryRequest>("Create Story") { context, r ->
                 r?.story?.let { s ->
-                    BotAdminService.getBotConfigurationsByNamespaceAndBotId(context.organization, s.botId)
+                    BotAdminService
+                        .getBotConfigurationsByNamespaceAndBotId(context.organization, s.botId)
                         .firstOrNull()
                         ?.let {
-                            FrontClient.getApplicationByNamespaceAndName(
-                                context.organization,
-                                it.nlpModel,
-                            )?._id
+                            FrontClient
+                                .getApplicationByNamespaceAndName(
+                                    context.organization,
+                                    it.nlpModel,
+                                )?._id
                         }
                 }
             },
@@ -778,10 +787,11 @@ open class BotAdminVerticle : AdminVerticle() {
                     getBotConfigurationsByNamespaceAndBotId(context.organization, s.botId)
                         .firstOrNull()
                         ?.let {
-                            FrontClient.getApplicationByNamespaceAndName(
-                                context.organization,
-                                it.nlpModel,
-                            )?._id
+                            FrontClient
+                                .getApplicationByNamespaceAndName(
+                                    context.organization,
+                                    it.nlpModel,
+                                )?._id
                         }
                 }
             },
@@ -961,13 +971,16 @@ open class BotAdminVerticle : AdminVerticle() {
                     .filter { it.i18n.any { i18n -> i18n.validated } }
                     .map {
                         it.copy(
-                            _id = it._id.toString().replaceFirst(it.namespace, context.organization).toId(),
+                            _id =
+                                it._id
+                                    .toString()
+                                    .replaceFirst(it.namespace, context.organization)
+                                    .toId(),
                             namespace = context.organization,
                         )
                     }.apply {
                         i18n.save(this)
-                    }
-                    .size
+                    }.size
             }
         }
 
@@ -1017,6 +1030,21 @@ open class BotAdminVerticle : AdminVerticle() {
                 } else {
                     unauthorized()
                 }
+            }
+        }
+
+        blockingJsonPost(
+            "/faq/import/:applicationId",
+            setOf(botUser),
+            simpleLogger("Import FAQs"),
+        ) { context, queries: List<FaqDefinitionRequest> ->
+            val applicationDefinition = front.getApplicationById(context.pathId("applicationId"))
+            if (context.organization == applicationDefinition?.namespace) {
+                measureTimeMillis(context) {
+                    FaqAdminService.importFAQs(queries, context.userLogin, applicationDefinition)
+                }
+            } else {
+                unauthorized()
             }
         }
 

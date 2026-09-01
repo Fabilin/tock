@@ -35,13 +35,15 @@ object EMSettingMapper {
     fun toDTO(entity: EMSetting): EMSettingDTO =
         with(entity) {
             when (this) {
-                is OpenAIEMSetting ->
+                is OpenAIEMSetting -> {
                     OpenAIEMSetting(
                         apiKey = SecurityUtils.fetchSecretKeyValue(apiKey),
                         model = model,
                         baseUrl = baseUrl,
                     )
-                is AzureOpenAIEMSetting ->
+                }
+
+                is AzureOpenAIEMSetting -> {
                     AzureOpenAIEMSetting(
                         apiKey = SecurityUtils.fetchSecretKeyValue(apiKey),
                         apiBase = apiBase,
@@ -49,10 +51,15 @@ object EMSettingMapper {
                         apiVersion = apiVersion,
                         model = model,
                     )
-                is OllamaEMSetting ->
+                }
+
+                is OllamaEMSetting -> {
                     OllamaEMSetting(model = model, baseUrl = baseUrl)
-                else ->
+                }
+
+                else -> {
                     throw IllegalArgumentException("Unsupported EM Setting")
+                }
             }
         }
 
@@ -74,13 +81,15 @@ object EMSettingMapper {
     ): EMSetting =
         with(dto) {
             when (this) {
-                is OpenAIEMSetting ->
+                is OpenAIEMSetting -> {
                     OpenAIEMSetting(
                         apiKey = SecurityUtils.createSecretKey(namespace, botId, feature, apiKey, rawByForce),
                         model = model,
                         baseUrl = baseUrl,
                     )
-                is AzureOpenAIEMSetting ->
+                }
+
+                is AzureOpenAIEMSetting -> {
                     AzureOpenAIEMSetting(
                         SecurityUtils.createSecretKey(namespace, botId, feature, apiKey, rawByForce),
                         apiBase = apiBase,
@@ -88,10 +97,15 @@ object EMSettingMapper {
                         apiVersion = apiVersion,
                         model = model,
                     )
-                is OllamaEMSetting ->
+                }
+
+                is OllamaEMSetting -> {
                     OllamaEMSetting(model = model, baseUrl = baseUrl)
-                else ->
+                }
+
+                else -> {
                     throw IllegalArgumentException("Unsupported EM Setting")
+                }
             }
         }
 }
